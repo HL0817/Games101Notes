@@ -29,7 +29,57 @@
 
 转置，行列互换：$\LARGE{ { \mathbf{A}^\mathrm{T} } = { \begin{pmatrix} x , y \end{pmatrix} } }$
 
-向量求长度：$\LARGE{ {\lVert \overrightarrow{ \mathbf{A} } \rVert} = { \sqrt{x^2 + y^2} } }$
+向量求长度：$\LARGE{ {\lVert \mathbf{A} \rVert} = { \sqrt{x^2 + y^2} } }$
+### 向量的乘法
+#### 点乘
+![vector_dot_product](./images/vector_dot_product.jpg)
+>$\LARGE{ { \overrightarrow{a} \cdot \overrightarrow{b} } = { {\lVert \overrightarrow{ a } \rVert} {\lVert \overrightarrow{ b } \rVert} {\cos\theta} } }$
+>$\LARGE{ \cos\theta = \dfrac{ \overrightarrow{a} \cdot \overrightarrow{b} }{ {\lVert \overrightarrow{ a } \rVert} {\lVert \overrightarrow{ b } \rVert} } }$
+>对于单位向量来说：$\LARGE{ \cos\theta = \hat{a} \cdot \hat{b} }$
+##### 性质
+>+ 交换律：
+>+ 结合律：
+>+ 分配率：
+##### 坐标表示
+>+ 2维：
+>+ 3维：
+##### 图形学中的应用
++ **获取两个向量之间的夹角**
++ **获取一个向量在另一个向量上的投影**
+    >a
+    >b
+    >c
++ **将向量按某个方向垂直和水平的分解**
+    >a
+    >b
+    >c
++ **判断向量相较于另一方向是向前还是向后**
+    >a
+    >b
+
+#### 叉乘
+![vector_cross_product](./images/vector_cross_product.jpg)
+>两个向量叉乘获得一个垂直于原向量的一个新向量
+>方向：
+>大小：
+##### 性质
+>a
+>aa
+>b
+>c
+>d
+##### 坐标表示
+>a
+##### 图形学中的应用
++ **判断向量在另一个向量的左边还是右边**
+    >a
+    >b
++ **判断点在两个向量的夹角内还是外**
+    >a
+    >b
++ **判断点在三角形内还是外**
+    >a
+    >b
 
 
 [MD基本要素](https://shd101wyy.github.io/markdown-preview-enhanced/#/zh-cn/markdown-basics)
