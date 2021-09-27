@@ -33,54 +33,128 @@
 ### 向量的乘法
 #### 点乘
 ![vector_dot_product](./images/vector_dot_product.jpg)
->$\LARGE{ { \overrightarrow{a} \cdot \overrightarrow{b} } = { {\lVert \overrightarrow{ a } \rVert} {\lVert \overrightarrow{ b } \rVert} {\cos\theta} } }$
->$\LARGE{ \cos\theta = \dfrac{ \overrightarrow{a} \cdot \overrightarrow{b} }{ {\lVert \overrightarrow{ a } \rVert} {\lVert \overrightarrow{ b } \rVert} } }$
->对于单位向量来说：$\LARGE{ \cos\theta = \hat{a} \cdot \hat{b} }$
+>$\LARGE{
+    { \overrightarrow{a} \cdot \overrightarrow{b} }
+    = { {\lVert \overrightarrow{ a } \rVert} {\lVert \overrightarrow{ b } \rVert} {\cos\theta} }
+}$
+>$\LARGE{
+    \cos\theta 
+    = \dfrac{ \overrightarrow{a} \cdot \overrightarrow{b} }{ {\lVert \overrightarrow{ a } \rVert} {\lVert \overrightarrow{ b } \rVert} }
+}$
+>对于单位向量来说：$\LARGE{
+    \cos\theta = \hat{a} \cdot \hat{b}
+}$
 ##### 性质
->+ 交换律：
->+ 结合律：
->+ 分配率：
+>+ 交换律：$\LARGE{
+    { \overrightarrow{a} \cdot \overrightarrow{b} }
+    = { \overrightarrow{b} \cdot \overrightarrow{a} }
+}$
+>+ 结合律：$\LARGE{ 
+    { \overrightarrow{a} \cdot ( \overrightarrow{b} + \overrightarrow{c} ) }
+    = { \overrightarrow{a} \cdot \overrightarrow{b} } + { \overrightarrow{a} \cdot \overrightarrow{c} } }$
+>+ 分配率：$\LARGE{
+    { (k\overrightarrow{a}) \cdot \overrightarrow{b} }
+    = { \overrightarrow{a} \cdot (k\overrightarrow{b}) }
+    = { k(\overrightarrow{a} \cdot \overrightarrow{b}) }
+}$
 ##### 坐标表示
->+ 2维：
->+ 3维：
+>+ 2维：$\LARGE{
+    { \overrightarrow{a} \cdot \overrightarrow{b} }
+    = { \begin{pmatrix} x_a \\ y_a \end{pmatrix} } \cdot { \begin{pmatrix} x_b \\ y_b \end{pmatrix} }
+    = {x_ax_b + y_ay_b}
+}$
+>
+>+ 3维：$\LARGE{
+    { \overrightarrow{a} \cdot \overrightarrow{b} }
+    = { \begin{pmatrix} x_a \\ y_a \\ z_a \end{pmatrix} } \cdot { \begin{pmatrix} x_b \\ y_b \\ z_b \end{pmatrix} }
+    = {x_ax_b + y_ay_b + z_az_b}
+}$
 ##### 图形学中的应用
 + **获取两个向量之间的夹角**
+    >$ \cos\theta 
+        = \dfrac{ \overrightarrow{a} \cdot \overrightarrow{b} }{ {\lVert \overrightarrow{ a } \rVert} {\lVert \overrightarrow{ b } \rVert} }
+    $
 + **获取一个向量在另一个向量上的投影**
-    >a
-    >b
-    >c
+    ![projection_of_vector](./images/projection_of_vector.jpg)
+    >定义$ \overrightarrow{b}_\perp $是$ \overrightarrow{b} $在$ \overrightarrow{a} $上的投影
+    >显然，$ \overrightarrow{b}_\perp $属于$ \overrightarrow{a} $（或者说是属于$ \hat{a} $），$ \overrightarrow{b}_\perp = k\hat{a} $
+    >$ k = \lVert { \overrightarrow{b}_\perp } \rVert = \lVert { \overrightarrow{b} } \rVert $
 + **将向量按某个方向垂直和水平的分解**
-    >a
-    >b
-    >c
+    ![decompose_vector](./images/decompose_vector.jpg)
+    >将$ \overrightarrow{b} $投影到$ \overrightarrow{a} $方向上，得到水平的分解量：$ \overrightarrow{b}_\perp $
+    >设垂直分量为$ \overrightarrow{b_n} $，显然$ \overrightarrow{b} = \overrightarrow{b}_\perp + \overrightarrow{b_n} $
+    >移项得到垂直分量：$ \overrightarrow{b} - \overrightarrow{b}_\perp $
 + **判断向量相较于另一方向是向前还是向后**
-    >a
-    >b
+    ![determine_direction](./images/determine_direction.jpg)
+    >$ \overrightarrow{b} $相对于$ \overrightarrow{a} $是朝前的：$ \overrightarrow{a} \cdot \overrightarrow{b} > 0 $
+    >$ \overrightarrow{c} $相对于$ \overrightarrow{a} $是朝后的：$ \overrightarrow{a} \cdot \overrightarrow{b} < 0 $
 
 #### 叉乘
 ![vector_cross_product](./images/vector_cross_product.jpg)
 >两个向量叉乘获得一个垂直于原向量的一个新向量
->方向：
->大小：
+>方向：右手螺旋定则：握手比大拇指的，四指按图中$\overrightarrow{a}$朝向$\overrightarrow{b}$的逆时针方向握，大拇指自然指向上，大拇指方向就是叉乘向量的方向
+>大小：$\LARGE{
+    { \lVert \overrightarrow{a} \times \overrightarrow{b} \rVert }
+    = { \lVert \overrightarrow{a} \rVert }{ \lVert \overrightarrow{b} \rVert }\sin\theta
+}$
 ##### 性质
->a
->aa
->b
->c
->d
+>+ 性质一：$\LARGE{
+    { \overrightarrow{a} \times \overrightarrow{b} } = { -\overrightarrow{b} \times \overrightarrow{a} }
+}$，由性质一可得：
+>   + ${ \overrightarrow{x} \times \overrightarrow{y} = +\overrightarrow{z} }$
+>   + ${ \overrightarrow{y} \times \overrightarrow{x} = -\overrightarrow{z} }$
+>   + ${ \overrightarrow{y} \times \overrightarrow{z} = +\overrightarrow{x} }$
+>   + ${ \overrightarrow{z} \times \overrightarrow{y} = -\overrightarrow{x} }$
+>   + ${ \overrightarrow{z} \times \overrightarrow{x} = +\overrightarrow{y} }$
+>   + ${ \overrightarrow{x} \times \overrightarrow{z} = -\overrightarrow{y} }$
+>+ 性质二：$\LARGE{ \overrightarrow{a} \times \overrightarrow{a} = \overrightarrow{0} }$
+>+ 性质三：$\LARGE{
+>    \overrightarrow{a} \times (\overrightarrow{b} + \overrightarrow{c})
+>    = \overrightarrow{a} \times \overrightarrow{b} + \overrightarrow{a} \times \overrightarrow{c}
+>}$
+>+ 性质四：$\LARGE{ \overrightarrow{a} \times k\overrightarrow{b} = k(\overrightarrow{a} \times \overrightarrow{b}) }$
 ##### 坐标表示
->a
+>$\LARGE{
+    \overrightarrow{a} \times \overrightarrow{b}
+    = \begin{pmatrix} {y_az_b - y_bz_a} \\ {z_ax_b - x_az_b} \\ {x_ay_b - y_ax_b} \end{pmatrix}
+}$
+这里先列出矩阵表示：$\LARGE{
+    \overrightarrow{a} \times \overrightarrow{b}
+    = \mathbf{A}\overrightarrow{b}
+    = \begin{pmatrix} 0 & -z_a & y_a \\ z_a & 0 & -x_a \\ -y_a & x_a & 0 \end{pmatrix} \begin{pmatrix} x_b \\ y_b \\ z_b \end{pmatrix}
+}$
 ##### 图形学中的应用
 + **判断向量在另一个向量的左边还是右边**
-    >a
-    >b
-+ **判断点在两个向量的夹角内还是外**
-    >a
-    >b
-+ **判断点在三角形内还是外**
-    >a
-    >b
+    ![cross_determine_left_right](./images/cross_determine_left_right.jpg)
+    >$ \overrightarrow{a} \times \overrightarrow{b} $为正：$\overrightarrow{b}$在$\overrightarrow{a}$的右侧
+    >$ \overrightarrow{a} \times \overrightarrow{b} $为负：$\overrightarrow{b}$在$\overrightarrow{a}$的左侧
++ **判断点P在三角形内还是外**
+    ![cross_determine_inside_outside](./images/cross_determine_inside_outside.jpg)
+    >+ 计算$(\overrightarrow{AP} \times \overrightarrow{AB})$、$(\overrightarrow{BP} \times \overrightarrow{BC})$、$(\overrightarrow{CP} \times \overrightarrow{CA})$得到的三个向量是否同向
+    *ABC三个点必须按顺时针或者逆时针取边的向量*
+    >+ 如果同向，则点P在三角形内，否则点P就在三角形外
 
+## Matrices
+图形学中常用矩阵来表示变换信息
++ 平移、旋转、缩放等
+### Basic
++ 矩阵是什么：m行n列的实数集，被称作$m \times n$的矩阵
+    + 一个$3 \times 2$的矩阵：
+        >$\mathbf{M} = \begin{pmatrix} 1 & 3 \\ 5 & 2 \\ 0 & 4 \end{pmatrix}$
++ 数的加法和乘法：
+    + 矩阵$\mathbf{M}$加上一个数k：
+        >$ k + \mathbf{M} = \begin{pmatrix} 1+k & 3+k \\ 5+k & 2+k \\ 0+k & 4+k \end{pmatrix} $
+    + 矩阵$\mathbf{M}$乘上一个数k：
+        >$ k\mathbf{M} = \begin{pmatrix} 1k & 3k \\ 5k & 2k \\ 0 & 4k \end{pmatrix} $
++ 矩阵的加法：
+    矩阵只有行列相同时才能相加减，$m \times n$的矩阵相加：
+    >$ \mathbf{M}+\mathbf{M}
+        = 2M
+        = \begin{pmatrix} 1+1 & 3+3 \\ 5+5 & 2+2 \\ 0+0 & 4+4 \end{pmatrix}
+        = \begin{pmatrix} 2 & 6 \\ 10 & 4 \\ 0 & 8 \end{pmatrix}
+    $
+### 矩阵乘法
+矩阵需要前矩阵的列数等于后矩阵行数才能相乘：$(M \times \mathbf{N})(\mathbf{N} \times P) = (M \times P)$
 
 [MD基本要素](https://shd101wyy.github.io/markdown-preview-enhanced/#/zh-cn/markdown-basics)
 [KaTeK](https://katex.org/docs/supported.html)
