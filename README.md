@@ -1,9 +1,12 @@
 # Games101Notes
 最近在看闫令琪的Games101课程，记录一下学习笔记和作业的代码
 
-[MD基本要素](https://shd101wyy.github.io/markdown-preview-enhanced/#/zh-cn/markdown-basics)
-[KaTeK](https://katex.org/docs/supported.html)
-常用数学公式记录
++ 本文使用数学渲染库：[KaTeK](https://katex.org/)
+    + [Supports](https://katex.org/docs/supported.html)
+****
+以下为临时草稿文件：
++ [MD基本要素](https://shd101wyy.github.io/markdown-preview-enhanced/#/zh-cn/markdown-basics)
++ 常用数学公式记录
 箭头表示向量：$\overrightarrow{a}$
 绝对值：$\lVert a \rVert$
 式子整体放大+粗体A+行列式：

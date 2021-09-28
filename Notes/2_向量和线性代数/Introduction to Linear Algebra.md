@@ -1,8 +1,8 @@
 # Introduction to Linear Algebra
 
 ## 目录
-+ 向量
-+ 矩阵
++ [向量](#vctors)
++ [矩阵](#matrices)
 
 ## Vectors
 ### Basic
@@ -136,7 +136,7 @@
 
 ## Matrices
 图形学中常用矩阵来表示变换信息
-+ 平移、旋转、缩放等
++ 平移、旋转、缩放、切变等
 ### Basic
 + 矩阵是什么：m行n列的实数集，被称作$m \times n$的矩阵
     + 一个$3 \times 2$的矩阵：
@@ -192,7 +192,7 @@
 **图形学中，根据向量的结构定义（ $m \times 1$ 或 $1 \times m$ ）采取左乘或者右乘进行计算**
 **并且，我们希望做完乘法后，得到的结果仍然是一个维度不变的向量，因此矩阵往往是 $m \times m$ 的形式**
 举一个例子，2维向量绕 $y$ 轴旋转：
-    > $\large{\begin{pmatrix} -1 & 0 \\ 0 & 1 \end{pmatrix}\begin{pmatrix} x \\ y \end{pmatrix} = \begin{pmatrix} -x \\ y \end{pmatrix}}$
+    > $\LARGE{\begin{pmatrix} -1 & 0 \\ 0 & 1 \end{pmatrix}\begin{pmatrix} x \\ y \end{pmatrix} = \begin{pmatrix} -x \\ y \end{pmatrix}}$
 
 ##### 转置
 将矩阵转置，就是将该矩阵的行列互换：
