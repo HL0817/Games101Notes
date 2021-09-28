@@ -1,6 +1,8 @@
 # Games101Notes
 最近在看闫令琪的Games101课程，记录一下学习笔记和作业的代码
 
+[MD基本要素](https://shd101wyy.github.io/markdown-preview-enhanced/#/zh-cn/markdown-basics)
+[KaTeK](https://katex.org/docs/supported.html)
 常用数学公式记录
 箭头表示向量：$\overrightarrow{a}$
 绝对值：$\lVert a \rVert$
@@ -40,3 +42,6 @@ $
     = \mathbf{A}\overrightarrow{b}
     = \begin{pmatrix} 0 & -z_a & y_a \\ z_a & 0 & -x_a \\ -y_a & x_a & 0 \end{pmatrix} \begin{pmatrix} x_b \\ y_b \\ z_b \end{pmatrix}
 }$
+
+不等于：
+> $M \not = P$

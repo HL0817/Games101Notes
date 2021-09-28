@@ -155,6 +155,72 @@
     $
 ### 矩阵乘法
 矩阵需要前矩阵的列数等于后矩阵行数才能相乘：$(M \times \mathbf{N})(\mathbf{N} \times P) = (M \times P)$
+来看一下这个例子：
+>$ { \begin{pmatrix} 1 & 3 \\ 5 & 2 \\ 0 & 4 \end{pmatrix} } { \begin{pmatrix} 3 & 6 & 9 & 4 \\ 2 & 7 & 8 & 3 \end{pmatrix} }
+>        = \begin{pmatrix} 9 & 27 & 33 & 13 \\ 10 & 44 & 61 & 26 \\ 0 & 28 & 32 & 12 \end{pmatrix}
+>$
 
-[MD基本要素](https://shd101wyy.github.io/markdown-preview-enhanced/#/zh-cn/markdown-basics)
-[KaTeK](https://katex.org/docs/supported.html)
++ $(3 \times 2)(2 \times 4) = (3 \times 4)$，结果必然是3行4列
++ 令 $\mathbf{Result}(i,j)$ 为结果矩阵 $\mathbf{Result}$ 的第 $i$ 行第 $j$ 列的数，它的值为**前矩阵第 $i$ 行的元素和后矩阵第 $j$ 列的元素一一对应相乘的和**
+    >例如结果矩阵第 $1$ 行第 $2$ 列的数 $\mathbf{Result}(1,2) = 1 \times 6 + 3 \times 7 = 27$
+
+##### 性质
++ 没有交换律，有一下两点说明：
+    + 从乘法的约束来说：$(M \times \mathbf{N})(\mathbf{N} \times P) = (M \times P)$，如果$M \not = P$，交换之后根本不能相乘
+    + 从乘法的定义来说：$(M \times \mathbf{N})(\mathbf{N} \times M) = (M \times M)$，交换之后的结果为 $(N \times N)$
+        + 这里举一个 $(3 \times 3)(3 \times 3)$ 的例子：
+            >$ { \begin{pmatrix} 1 & 2 & 3 \\ 1 & 2 & 3 \\ 1 & 2 & 3 \end{pmatrix} }
+            >  { \begin{pmatrix} 4 & 5 & 6 \\ 4 & 5 & 6 \\ 4 & 5 & 6 \end{pmatrix} }
+            >= \begin{pmatrix} 24 & 30 & 36 \\ 24 & 30 & 36 \\ 24 & 30 & 36 \end{pmatrix}
+            >\not=
+            >{ \begin{pmatrix} 4 & 5 & 6 \\ 4 & 5 & 6 \\ 4 & 5 & 6 \end{pmatrix} }
+            >{ \begin{pmatrix} 1 & 2 & 3 \\ 1 & 2 & 3 \\ 1 & 2 & 3 \end{pmatrix} } 
+            >= \begin{pmatrix} 15 & 30 & 45 \\ 15 & 30 & 45 \\ 15 & 30 & 45 \end{pmatrix}
+            >$
+        
+        + 这里的例子同时也可以说明 $\mathbf{MVP}$ 变换为什么不能随意的交换顺序
++ 结合律
+    > $(\mathbf{A}\mathbf{B})\mathbf{C} = \mathbf{A}(\mathbf{B}\mathbf{C})$
++ 分配率
+    > $\mathbf{A}(\mathbf{B} + \mathbf{C}) = \mathbf{A}\mathbf{B} + \mathbf{A}\mathbf{C}$
+    > $(\mathbf{A} + \mathbf{B})\mathbf{C} = \mathbf{A}\mathbf{C} + \mathbf{B}\mathbf{C}$
+
+##### 矩阵和向量相乘
+把向量看成 $m \times 1$ 的矩阵（或 $1 \times m$ 的矩阵）来做乘法：
++ 左乘：矩阵在向量的左侧，即 $(n \times m)(m \times 1)$
++ 右乘：矩阵在向量的右侧，即 $(1 \times m)(m \times n)$
+**图形学中，根据向量的结构定义（ $m \times 1$ 或 $1 \times m$ ）采取左乘或者右乘进行计算**
+**并且，我们希望做完乘法后，得到的结果仍然是一个维度不变的向量，因此矩阵往往是 $m \times m$ 的形式**
+举一个例子，2维向量绕 $y$ 轴旋转：
+    > $\large{\begin{pmatrix} -1 & 0 \\ 0 & 1 \end{pmatrix}\begin{pmatrix} x \\ y \end{pmatrix} = \begin{pmatrix} -x \\ y \end{pmatrix}}$
+
+##### 转置
+将矩阵转置，就是将该矩阵的行列互换：
+
+$ { \begin{pmatrix} 1 & 2 \\ 3 & 4 \\ 5 & 6 \end{pmatrix} } ^ \mathrm{T} 
+    = \begin{pmatrix} 1 & 2 & 3 \\ 4 & 5 & 6 \end{pmatrix} $
+
+比较特别的一点：
+$ (AB)^T = {B^T}{A^T} $
+
+##### 矩阵的逆
++ 单位矩阵
+    + 对角线上的元素为1，其余的元素为0的方阵（行列数相同的矩阵）
+        > $\bm{I}_{3 \times 3} = \begin{pmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix}$
++ 逆矩阵
+    + 矩阵 $A$ 和它的逆矩阵 $A^{-1}$ 相乘的结果为单位矩阵 $I$
+        > $AA^{-1} = A^{-1}A = I$
+        > $ (AB)^{-1} = B^{-1}A^{-1} $
+
+##### 向量乘法的矩阵表示
++ 向量点乘
+    + > $ \overrightarrow{a} \cdot \overrightarrow{b} 
+      >= \overrightarrow{a}^{T}\overrightarrow{b}
+      >= \begin{pmatrix} x_a & y_a & z_a \end{pmatrix} \begin{pmatrix} x_b \\ y_b \\ z_b \end{pmatrix}
+      >= \begin{pmatrix} x_ax_b + y_ay_b + z_az_b \end{pmatrix}
+      >$
++ 向量叉乘
+    + > $ \overrightarrow{a} \times \overrightarrow{b} 
+      >= \mathbf{A}*b
+      >= \begin{pmatrix} 0 & -z_a & y_a \\ z_a & 0 & -x_a \\ -y_a & x_a & 0 \end{pmatrix} \begin{pmatrix} x_b \\ y_b \\ z_b \end{pmatrix}
+      >$
