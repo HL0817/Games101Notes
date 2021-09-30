@@ -3,6 +3,12 @@
 
 + 本文使用数学渲染库：[KaTeK](https://katex.org/)
     + [Supports](https://katex.org/docs/supported.html)
+    + 所有涉及数学公式的章节，都有对应的数学公式渲染后图片版内容，无法渲染数学公式时请阅读图片版内容，章节名_md_to_png.png
+
+索引：
++ [Introduction to Computer Graphics](./Notes/1_introduction/Introduction_to_Computer_Graphics.md)
++ [向量和线性代数](./Notes/2_向量和线性代数/Introduction_to_Linear_Algebra.md)
++ [Transformation](./Notes/3_Transformation/Transformation.md)
 ****
 以下为临时草稿文件：
 + [MD基本要素](https://shd101wyy.github.io/markdown-preview-enhanced/#/zh-cn/markdown-basics)
