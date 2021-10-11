@@ -59,6 +59,14 @@ If you can not render Mathematical formula, please read this [image_Transformati
     > $\LARGE{ \begin{bmatrix} x' \\ y' \end{bmatrix}
     > = \begin{bmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix} }$
 
+#### 旋转矩阵的特殊性质
+> $R_{\theta} = \begin{pmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{pmatrix}$
+> $R_{-\theta} = \begin{pmatrix} \cos\theta & \sin\theta \\ -\sin\theta & \cos\theta \end{pmatrix} = R_{\theta}^T$
+> $R_{-\theta} = R_{\theta}^{-1}$
+
+在旋转里面，旋转矩阵的逆就是旋转矩阵的转置：$R_{-\theta} = R_{\theta}^{-1} = R_{\theta}^T$
+*在数学上，我们称矩阵的逆和矩阵的转置相同的矩阵为正交矩阵*
+
 #### 线性变换
 满足以下形式的变换被称为线性变换, $ X' = \mathbf{M}X $ ：
 + 数学形式：
