@@ -9,8 +9,8 @@
 + [Introduction to Computer Graphics](./Notes/1_introduction/Introduction_to_Computer_Graphics.md)
 + [向量和线性代数](./Notes/2_向量和线性代数/Introduction_to_Linear_Algebra.md)
 + [Transformation](./Notes/3_Transformation/Transformation.md)
-+ [Viewing transformation](./Notes/4_Viewing_transformation.md)
-+ [Rasterization](./Notes/5_Rasterization.md)
++ [Viewing transformation](./Notes/4_Viewing_transformation/Viewing_transformation.md)
++ [Rasterization](./Notes/5_Rasterization/Rasterization.md)
 ****
 以下为临时草稿文件：
 + [MD基本要素](https://shd101wyy.github.io/markdown-preview-enhanced/#/zh-cn/markdown-basics)
