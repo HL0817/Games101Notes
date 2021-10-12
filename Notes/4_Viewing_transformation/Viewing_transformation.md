@@ -167,3 +167,16 @@ n & 0 & 0 & 0 \\
 
 做完透视投影视锥体到正交投影视锥体的变换后，再做一次正交投影就得到透视投影的变换结果了
 写出透视投影的变换矩阵：$M_{persp} = M_{ortho}M_{persp->ortho}$
+
+现在我们已经确定了透视投影的变换矩阵的求解方法，但是还需要解决一个问题：
+透视投影视锥体做变换得到一个 $[l, r] \times [b, t] \times [f, n]$的正交投影视锥体，其中 $f$ 和 $n$ 是已知的近截面和远截面的 $z$ 值，那么，我们该如何定义 $l$、$r$、$b$、$t$呢
+我们定义相机到近截面的关系：
++ **field-of-view(fovY)**：视角，表示相机可以看到的近截面的上下范围，如下图两个红色线段的夹角
++ **aspect ratio**：宽高比，表示相机可以看到的近截面的大小，如下图近截面的宽高之比
+![fovY_and_aspect_ratio](./images/fovY_and_aspect_ratio.jpg)
+
+我们同样从侧面来观察这个四棱锥，看一下 $l$、$r$、$b$、$t$ 与定义之间的关系：
+![fovY_and_aspect_ratio_map_lrbt](./images/fovY_and_aspect_ratio_map_lrbt.jpg)
+$\LARGE{\tan{\frac {fovY} 2} = \frac t {\lVert n \rVert}} \\ {aspect = \frac r t}$
+
+现在我们已经可以通过 $fovY$、$aspect$、$n$、$f$ 来做透视投影变换了
