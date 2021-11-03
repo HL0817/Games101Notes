@@ -1,21 +1,10 @@
 # Rasterization
 
 ## 目录
-+ Rasterization
-    + Canonical Cube to Screen
-    + Rasterizing triangles
-    + Aliasing
-+ Antialiasing
-    + Sampleing theory
-    + Antialiasing in practice
-+ Visibility/occlusion
-    + Z-buffering
-+ Shading
-    + Illumination & Shading
-    + Graphics Pipeline
++ Canonical Cube to Screen
++ Rasterizing triangles
 
-## Rasterization
-### Canonical Cube to Screen
+## Canonical Cube to Screen
 经过 MVP 变换，得到了一个 ${[-1, 1]}^3$ 的标准立方体，我们需要把这个标准立方体绘制到屏幕上。
 在了解这个过程之前，先做一些定义
 + 屏幕（screen）
@@ -44,8 +33,8 @@ $$\LARGE M_{viewport} = \begin{pmatrix}
 0 & 0 & 0 & 1
 \end{pmatrix}$$
 
-### 绘制一个三角形
-##### 基础图元：三角形
+## 绘制一个三角形
+#### 基础图元：三角形
 图形学中常用三角形作为基础图元去表示其他复杂的形状
 ![triangle_meshes](./images/triangle_meshes.png)
 为什么要用三角形：
@@ -56,7 +45,7 @@ $$\LARGE M_{viewport} = \begin{pmatrix}
     + 明确的内外关系，可以使用叉乘快速计算点与三角形的内外关系
     + 良好的插值计算，使用重心坐标插值，计算简单效果好
 
-##### 采样三角形
+#### 采样三角形
 现在三角形经过 MVP + viewport 变换，变成了屏幕空间里的三角形，我们如何用像素近似表示出这个三角形？
 ![approximate_a_triangle](./images/approximate_a_triangle.png)
 一个简单的光栅化方法，**采样**
@@ -85,7 +74,7 @@ for (int x = 0; x < xmax; ++x)
         image[x][y] = inside(tri, x + 0.5, y + 0.5); // 还记得吗 像素中心点要偏移0.5个单位
 ```
 
-##### 判断点是否在三角形内
+#### 判断点是否在三角形内
 我们做采样的时候需要判断点是否在三角形内，前面我们已经提到过方法，做三次叉乘
 ![cross_determine_inside_outside](./images/cross_determine_inside_outside.jpg)
 >+ 计算 $(\overrightarrow{AP} \times \overrightarrow{AB})$、$(\overrightarrow{BP} \times \overrightarrow{BC})$、$(\overrightarrow{CP} \times \overrightarrow{CA})$ 得到的三个向量是否同向
@@ -98,7 +87,7 @@ for (int x = 0; x < xmax; ++x)
 + 不做处理，课程里就不做处理，那么点既在三角形 1 内也在三角形 2 内
 + 自定义规则处理
 
-##### 优化计算
+#### 优化计算
 前面我们提到，对三角形做光栅化，就是判断像素是否在三角形内，但是我们有必要对所有像素都做一次判断吗
 ![triangle_bound_box](./images/triangle_bound_box.png)
 像图中展示这样，我们完全没有必要对白色区域做判断，这块区域显然不在三角形内。
@@ -110,5 +99,3 @@ $$\begin{split}
 
 最终我们采用像素，得到了所有在三角形内的像素点，并将该像素绘制为对应的颜色
 ![rasterize_a_triangle](./images/rasterize_a_triangle.png)
-
-### Aliasing
