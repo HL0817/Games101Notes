@@ -1,4 +1,5 @@
 # Rasterization
+If you can not render Mathematical formula, please read this [image_Rasterization_md_to_png](./Rasterization_md_to_png.png)
 
 ## 目录
 + Canonical Cube to Screen
