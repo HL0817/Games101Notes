@@ -29,7 +29,6 @@
 
 总结一下这些问题，走样的本质就是**信号的变换太快（高频），采样的频率太慢（采样间隔大）**
 
-### Antialiasing
 这里我们先给出反走样的方法：**采样之前先做模糊**
 以光栅化三角形为例：
 ![rasterization_antialiased_sampling](./images/rasterization_antialiased_sampling.png)
@@ -39,6 +38,7 @@
 可以看见锯齿明显减少了，但是为什么做完模糊之后采样会减少我们的走样现象？
 让我们来研究一下根本原因
 
+### 采样的理论基础
 #### 频域（Frequency Domain）
 正弦波（Sines）和余弦波（Cosines）
 ![sines_and_cosines](./images/sines_and_cosines.png)
@@ -65,13 +65,13 @@ $$\begin{split}
 $$
 
 ![Fourier_Transform](./images/Fourier_Transform.png)
-
+**我们可以把转换后的结果定义为频域，也就是：傅里叶变换把信号从时域（spatial domain）转换到频域（frequency domain）**
 那么对于任何函数 $f(x)$ 来说
 + 我们通过傅里叶变换把 $f(x)$ 转换为周期函数 $F(\omega)$
 + 我们通过傅里叶级数展开，用正弦和余弦函数去模拟 $F(\omega)$
 + 结合正弦和余弦的频率可知，频率越高得到的结果与原函数越相似
 
-信号就可以看做一种函数，那么看下图
+信号可以看做一种函数，那么看下图
 ![higher_frequencies_with_fixed_sampling](./images/higher_frequencies_with_fixed_sampling.png)
 这里展示了在固定的采样频率下，信号的频率越高，采样出来的结果就越差
 
@@ -79,3 +79,22 @@ $$
 ![aliasing_in_frequency](./images/aliasing_in_frequency.png)
 灰色的线条代表采样的频率，我们可以看见，在相同的采样频率下去采样频率差异巨大的两种函数，得到了相同的结果
 也就是说，在当前的采样频率下，我们无法区分两种函数表示的信号
+
+#### 滤波（Filtering）
+前面我们提到反走样就是在采样之前先做一次模糊，把高频的信号给去掉，这个去掉某些频率信号的过程被叫做滤波。
+**滤波就是去掉某些特定频率的信号（Filtering = Getting rid of certain frequency contents）**
+现在我们借助前面提到的频域来理解滤波的过程和结果
+##### 频域可视化
+![visualizing_image_frequency_content](./images/visualizing_image_frequency_content.png)
++ 我们把左边的信号做傅里叶变换，它从时域变到频域
++ 我们把它的频域表示可视化出来得到右边的图案
+    这里有几点需要注意：
+    + 中心定义为低频区域，周围定位高频区域，也就是说从中心到四周，频率是在变高的
+    + 用亮度来表示不同位置（频率）上有多少信息，图里的中心位置比较亮就表示图片大多是信息都是低频信息
+    + 水平和竖直的线含义
+    我们分析信号的时候会认为信号是周期性的，在处理非周期信号时（例如图片），我们会人为的重复这个段信号（图片水平和竖直重复），但是这段信号的左右边界不相同，在边界连接处信号发生了剧烈变换（同一张图片收尾相连，这个连接的地方有非常明显的差异），在频域中就呈现出明显的高频差异，表现上就是一条水平和竖直的白色线条
+##### 高通滤波
+现在我们尝试对这个图片进行滤波，即去除频域中某一块区域（某一段频率）的信息
+![high_pass_filter](./images/high_pass_filter.png)
++ 我们把低频区域全部去掉，仅保留高频区域，这被称为高通滤波（High-pass filter），如图中右边所示
++ 然后我们对频域的信号做逆傅里叶变换，还原剩余的高频信息，得到了左边的图像
