@@ -151,10 +151,16 @@ Filtering = Convolution = Averaging
 Sampling = Repeating Frequency Contents
 ![repeating_frequency_contents](./images/repeating_frequency_contents.png)
 + 时域上有一个函数 $X_{\alpha}(t)$ ，如图（a）所示
-+ $X_{\alpha}(t)$ 的频域表示为 $X_{\alpha}(f)$ ，如图（b）所示
++ $X_{\alpha}(t)$ 的频域表示为 $X_{\alpha}(f)$ （被称为频谱），如图（b）所示
 + 函数 $P_{\delta}(t)$ 是冲激函数，只在固定位置有值的函数（用来采样的函数），如图（c）所示
 + 冲激函数 $P_{\delta}(t)$ 的频域表示为 $P_{\delta}(f)$ ，也是一个冲激函数，如图（d）所示
-+ 对函数 $X_{\alpha}(t)$ 用冲激函数 $P_{\delta}(t)$ 采样，也就是将两个函数乘起来来，得到采样结果 $S(t)$ ，如图（e）所示
++ 对函数 $X_{\alpha}(t)$ 用冲激函数 $P_{\delta}(t)$ 采样，也就是将两个函数乘起来，得到采样结果 $S(t)$ ，如图（e）所示
 + 在时域做乘积，就是对频域做卷积，采样也就是对频域 $X_{\alpha}(f)$ 函数用冲激函数 $P_{\delta}(f)$ 做卷积，得到采样结果 $S(f)$ ，如图（f）所示
 
-经过上述操作我们可以得出结论，采样就是在频域对信号按照一定周期做重复
+经过上述操作我们可以得出结论，采样就是在重复原始信号的频谱（在频域做重复）
+
+那么由此可知，Aliasing = Mixed Frequency Contents，走样就是频谱在频域卷积冲激函数时发生了混叠，如下图：
+![mixed_frequency_contents](./images/mixed_frequency_contents.png)
++ 采样的间隔会影响在频域对原始信号重复的步长，即采样间隔越大（采样频率约小）对应的频域重复信号的步长越小
++ 在密集采样（Dense sampling）时，采样间隔很小，那么它在频域重复原始信号时的步长足够大，大到足以在一个步长内容纳完整的原始信号
++ 在稀疏采样（Sparse sampling）时，采样间隔很大，它在频域重复原始信号的步长较小，导致一个步长内不能完整重复原始信号，导致了频谱混叠
