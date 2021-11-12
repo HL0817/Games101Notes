@@ -164,3 +164,38 @@ Sampling = Repeating Frequency Contents
 + 采样的间隔会影响在频域对原始信号重复的步长，即采样间隔越大（采样频率约小）对应的频域重复信号的步长越小
 + 在密集采样（Dense sampling）时，采样间隔很小，那么它在频域重复原始信号时的步长足够大，大到足以在一个步长内容纳完整的原始信号
 + 在稀疏采样（Sparse sampling）时，采样间隔很大，它在频域重复原始信号的步长较小，导致一个步长内不能完整重复原始信号，导致了频谱混叠
+
+### Antialiasing（反走样）
+#### 减少采样瑕疵的方法：
++ 增加采样率（本质的方法）
+    + 在频域上增加重复原始信号的步长，即提高采样率
+    + 对光栅化来说，就是提高设备的像素
+    + 分辨率足够高，锯齿就会很小，小到一定程度就会被人眼忽略（放大看也会有锯齿效果），但是代价太了
++ 反走样
+    + 把频域中的频谱变窄，窄到在我们设定的小步长的采样时间内也能完整的重复整个频谱
+    + 最简单的做法就是在采样之前把高频信号给去掉（收窄频谱），采样就可以在步长内完整容纳当前仅剩的频谱
+
+#### Antialiasing = Blur + Sample
+![antialiasing_filter_high_frequency](./images/antialiasing_filter_high_frequency.png)
+对应到光栅化的步骤，我们使用低通滤波在采样之前做一次卷积
+![rasterization_antialiased_sampling](./images/rasterization_antialiased_sampling.png)
+我们知道低通滤波对应时域就是一个方块，频域就是保留中心位置的低频区域
+在光栅化的过程中使用1个像素长度的低通滤波器来对每个像素做模糊，如下图：
+![one_pixel_width_box_filter](./images/one_pixel_width_box_filter.png)
++ 使用单像素低通滤波器对所有像素点对应的方块做卷积，也就是对这个像素做平均
+    + convolving = filtering = averaging
++ 使用这个平均值来进行采样
+
+计算像素平均值，算法很简单，计算要光栅化的对象占像素面积的比例，算取面积比的过程就是平均的过程
+![compute_average_pixel_value](./images/compute_average_pixel_value.png)
+
+#### MSAA
+现在我们把反走样问题，转换成了求取光栅化对象占据像素的面积比，这里介绍MSAA反走样方法
+##### 核心思想
+我们为每个像素增加多个采样点，通过计算每个像素有多少个采样点在三角形内来近似判断三角形占据像素的面积比，根据得到的面积比来把像素值计算为平均值
+##### MSAA基本步骤
++ 增加采样点，把每个像素由原来的单采样点增加到 $N \times N$ 个采样点，这里以 $2 \times 2$ 为例
+![increase_sampling_points](./images/increase_sampling_points.png)
++ 计算每个像素的采样点占比
++ 根据采样点占比计算每个像素的值
+##### 效果
