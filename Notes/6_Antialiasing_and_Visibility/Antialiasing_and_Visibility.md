@@ -1,4 +1,5 @@
 # Antialiasing and Visibility
+If you can not render Mathematical formula, please read this [image_Anitaliasing_and_Visibility_md_to_png](./Anitaliasing_and_Visibility_md_to_png.png)
 
 ## 目录
 + [Antialiasing](#antialiasing)
