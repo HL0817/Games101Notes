@@ -1,10 +1,16 @@
 # Antialiasing and Visibility
 
 ## 目录
-+ Antialiasing
-    + Aliasing
-    + Sampleing theory
-    + Antialiasing
++ [Antialiasing](#antialiasing)
+    + [Aliasing](#aliasing)
+    + [Sampleing theory](#采样的理论基础)
+        + [频域（Frequency Domain）](#频域)
+        + [滤波](#滤波)
+        + [卷积与滤波](#卷积与滤波)
+        + [从频域的角度理解走样](#从频域的角度理解走样)
+    + [Antialiasing](#antialiasing)
+        + [减少采样瑕疵的方法](#减少采样瑕疵的方法)
+        + [MSAA](#msaa)
 + Visibility
     + Z-buffering
 
@@ -39,7 +45,7 @@
 让我们来研究一下根本原因
 
 ### 采样的理论基础
-#### 频域（Frequency Domain）
+#### 频域
 正弦波（Sines）和余弦波（Cosines）
 ![sines_and_cosines](./images/sines_and_cosines.png)
 
@@ -80,8 +86,8 @@ $$
 灰色的线条代表采样的频率，我们可以看见，在相同的采样频率下去采样频率差异巨大的两种函数，得到了相同的结果
 也就是说，在当前的采样频率下，我们无法区分两种函数表示的信号
 
-#### 滤波（Filtering）
-前面我们提到反走样就是在采样之前先做一次模糊，把高频的信号给去掉，这个去掉某些频率信号的过程被叫做滤波。
+#### 滤波
+前面我们提到反走样就是在采样之前先做一次模糊，把高频的信号给去掉，这个去掉某些频率信号的过程被叫做滤波（Filtering）。
 **滤波就是去掉某些特定频率的信号（Filtering = Getting rid of certain frequency contents）**
 现在我们借助前面提到的频域来理解滤波的过程和结果
 ##### 频域可视化
@@ -110,7 +116,7 @@ $$
 ![filter_out_low_and_high_1](./images/filter_out_low_and_high_1.png)
 这里对比了分别保留不同的频率信号时，图像的变化，我们可以观察得出**保留的频率越高，图像内容的边界越明显**
 
-#### 卷积（Convolution）与滤波
+#### 卷积与滤波
 Filtering = Convolution = Averaging
 ##### 卷积
 我们认识一下什么是卷积，如图所示
@@ -119,7 +125,7 @@ Filtering = Convolution = Averaging
 + 信号值与滤波器做点乘，再将结果写回，这个过程被称为卷积
     如图中的第二个信号值做卷积，就是将信号值按照Filter的权重值进行平均计算，然后把结果写回第二个信号值
     $Signal[1] = Signal[0] * Filter[0] + Signal[1] * Filter[1] + Signal[2] * Filter[2]$
-+ **卷积就是按照滤波器的权重对周围的信号值做加权平均（这里是不完全正确的说法，只是用来简易理解，并非数学上的卷积）**
++ **卷积（Convolution）就是按照滤波器的权重对周围的信号值做加权平均（这里是不完全正确的说法，只是用来简易理解，并非数学上的卷积）**
 
 ##### 重要的结论
 **时域上做卷积就是在频域上做乘积，在时域上做乘积就是在频域上做卷积**
@@ -166,7 +172,7 @@ Sampling = Repeating Frequency Contents
 + 在稀疏采样（Sparse sampling）时，采样间隔很大，它在频域重复原始信号的步长较小，导致一个步长内不能完整重复原始信号，导致了频谱混叠
 
 ### Antialiasing（反走样）
-#### 减少采样瑕疵的方法：
+#### 减少采样瑕疵的方法
 + 增加采样率（本质的方法）
     + 在频域上增加重复原始信号的步长，即提高采样率
     + 对光栅化来说，就是提高设备的像素
@@ -194,8 +200,17 @@ Sampling = Repeating Frequency Contents
 ##### 核心思想
 我们为每个像素增加多个采样点，通过计算每个像素有多少个采样点在三角形内来近似判断三角形占据像素的面积比，根据得到的面积比来把像素值计算为平均值
 ##### MSAA基本步骤
-+ 增加采样点，把每个像素由原来的单采样点增加到 $N \times N$ 个采样点，这里以 $2 \times 2$ 为例
-![increase_sampling_points](./images/increase_sampling_points.png)
++ 增加采样点
+    + 把每个像素由原来的单采样点增加到 $N \times N$ 个采样点，这里以 $2 \times 2$ 为例
+    ![increase_sampling_points](./images/increase_sampling_points.png)
 + 计算每个像素的采样点占比
+    + 给像素每个在三角形内的采样点做计数，使用我们前文提到的判断点是否在三角形内的方法
+    ![count_inside_sampling_points](./images/count_inside_sampling_points.png)
 + 根据采样点占比计算每个像素的值
+    + 我们使用像素在三角形内的采样点的数量比例来近似得到三角形占像素的面积，从而近似得到像素平均值，达到低通滤波的效果
+    ![average_pixel_value](./images/average_pixel_value.png)
 ##### 效果
++ 点采样的结果
+![point_sampling_example](./images/point_sampling_example.png)
++ $4 \times 4$ MSAA采样的结果
+![4x4MSAA_example](./images/4x4MSAA_example.png)

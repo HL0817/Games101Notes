@@ -2,8 +2,12 @@
 If you can not render Mathematical formula, please read this [image_Rasterization_md_to_png](./Rasterization_md_to_png.png)
 
 ## 目录
-+ Canonical Cube to Screen
-+ Rasterizing triangles
++ [Canonical Cube to Screen](#canonical-cube-to-screen)
++ [Rasterizing triangles](#绘制一个三角形)
+    + [基础图元——三角形](#基础图元)
+    + [采样三角形](#采样三角形)
+    + [判断点是否在三角形内](#判断点是否在三角形内)
+    + [优化计算](#优化计算)
 
 ## Canonical Cube to Screen
 经过 MVP 变换，得到了一个 ${[-1, 1]}^3$ 的标准立方体，我们需要把这个标准立方体绘制到屏幕上。
@@ -35,7 +39,7 @@ $$\LARGE M_{viewport} = \begin{pmatrix}
 \end{pmatrix}$$
 
 ## 绘制一个三角形
-#### 基础图元：三角形
+#### 基础图元
 图形学中常用三角形作为基础图元去表示其他复杂的形状
 ![triangle_meshes](./images/triangle_meshes.png)
 为什么要用三角形：

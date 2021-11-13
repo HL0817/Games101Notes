@@ -4,10 +4,13 @@
 If you can not render Mathematical formula, please read this [image_Viewing_transformation_md_to_png](./Viewing_transformation_md_to_png.png)
 
 ## 目录
-+ View/Camera transformation
-+ Projection transformation
-    + Orthographic projection
-    + Perspective projection
++ [View transformation](#view-transformation)
+    + [define a camera](#define-a-camera)
+    + [观察空间](#观察空间)
+    + [视图变换](#视图变换)
++ [Projection transformation](#projection-transformation)
+    + [Orthographic projection](#orthographic-projection)
+    + [Perspective projection](#perspective-projection)
 
 将 3维空间中的东西放到 2维的窗口显示出来需要经过以下几个步骤：
 ![coordinate_systems](./images/coordinate_systems.png)
@@ -20,8 +23,7 @@ If you can not render Mathematical formula, please read this [image_Viewing_tran
 + viewport transformation
     将裁剪空间得到的平面映射到屏幕的分辨率范围内，转换到屏幕空间
 
-## View/Camera Transformation
-
+## View Transformation
 #### define a camera
 ![define_a_camera](./images/define_a_camera.jpg)
 + 位置（eye position）：$\overrightharpoon{e}$
