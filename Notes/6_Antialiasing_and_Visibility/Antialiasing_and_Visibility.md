@@ -12,8 +12,9 @@ If you can not render Mathematical formula, please read this [image_Anitaliasing
     + [Antialiasing](#antialiasing)
         + [减少采样瑕疵的方法](#减少采样瑕疵的方法)
         + [MSAA](#msaa)
-+ Visibility
-    + Z-buffering
++ [Visibility](#visibility)
+    + [Painter Algorithm](#painter-algorithm)
+    + [Z-Buffer Algorithm](#z-buffer-algorithm)
 
 ## Antialiasing
 ### Aliasing
@@ -215,3 +216,21 @@ Sampling = Repeating Frequency Contents
 ![point_sampling_example](./images/point_sampling_example.png)
 + $4 \times 4$ MSAA采样的结果
 ![4x4MSAA_example](./images/4x4MSAA_example.png)
+
+
+## Visibility
+### Painter Algorithm
+按照画家（油画画家）作画的方式，从远往近的把物体一个一个的画出来。油画作画时，会先从远景画起，然后画近景，在处理近景遮挡远景的时候，会将近处的物体直接画在远景上，用新画出的物体来覆盖远景的内容
+如果光栅化很多物体到屏幕上，按照画家算法的方式是可以成功将物体绘制到屏幕上的，但是这种方法有一个致命的缺陷，如下图所示：
+![unresolvable_depth_order](./images/unresolvable_depth_order.png)
+在处理这类混叠图形的时候，我们无法准确的分辨物体谁在前面谁在后面，此时已经不再适合用物体的深度来决定这些遮挡区域的绘制顺序了
+
+### Z-Buffer Algorithm
+Z-Buffer算法可以完美的解决画家算法的缺陷，它沿用了画家算法按照物体远近关系来决定绘制顺序的思路，只是我们不在关注物体本身，而是关注每一个屏幕像素的深度
++ 记录每个像素当前时刻的最小深度值
++ 我们会生产一张额外的z-buffer来存储像素的z-value
++ 我们现在有两个buffer
+    + frame buffer，用来存储颜色值
+    + depth buffer（z-buffer），用来存储最小深度值
++ 在我们光栅化最后，绘制到屏幕上时，会根据这两个buffer来决定每个像素的颜色值
++ 我们之前定义过相机和Lookat，对于深度来说数值都是正数，z-value越小表示离摄像机越近，z-value越小表示离摄像机越远
