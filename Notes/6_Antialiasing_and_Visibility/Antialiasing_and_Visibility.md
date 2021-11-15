@@ -226,6 +226,7 @@ Sampling = Repeating Frequency Contents
 在处理这类混叠图形的时候，我们无法准确的分辨物体谁在前面谁在后面，此时已经不再适合用物体的深度来决定这些遮挡区域的绘制顺序了
 
 ### Z-Buffer Algorithm
+##### 步骤
 Z-Buffer算法可以完美的解决画家算法的缺陷，它沿用了画家算法按照物体远近关系来决定绘制顺序的思路，只是我们不在关注物体本身，而是关注每一个屏幕像素的深度
 + 记录每个像素当前时刻的最小深度值
 + 我们会生产一张额外的z-buffer来存储像素的z-value
@@ -234,3 +235,32 @@ Z-Buffer算法可以完美的解决画家算法的缺陷，它沿用了画家算
     + depth buffer（z-buffer），用来存储最小深度值
 + 在我们光栅化最后，绘制到屏幕上时，会根据这两个buffer来决定每个像素的颜色值
 + 我们之前定义过相机和Lookat，对于深度来说数值都是正数，z-value越小表示离摄像机越近，z-value越小表示离摄像机越远
+
+这里给出一个z-buffer的例子：
+左边是光栅化的结果，我们得到了一个远近顺序正确的结果；右边是每个像素深度的可视化，颜色越深表示值越小，那么对应深度就越近。
+![z_buffer_example](./images/z_buffer_example.png)
+
+##### 核心过程
+给出核心过程的伪代码
+```c++
+// Initialize depth buffer to Infinity
+for (each triangle T)
+    for (each sample(x,y,z) in T)
+        if (z < zbuffer[x, y])          // closest sample so far
+            framebuffer[x, y] = rgb;    // update color
+            zbuffer[x, y] = z;          // update depth
+```
+其实就这么多内容，仅仅多了一个分支判断和一个全像素大小的buffer
+我们来看一下具体的例子，帮助理解核心的深度更新流程：
+![update_z_buffer_example](./images/update_z_buffer_example.png)
++ 初始化一个全像素的大小的buffer，初始值为无穷远处
++ 采样一个深度全为5的三角形，得到更新后的深度缓冲
++ 采样第二个深度值复杂且与第一个三角形有重叠的三角形，根据深度关系更新深度缓冲
+
+##### 算法复杂度
+在不计算采样三角形的复杂度的情况下：
++ 画家算法处理需要遍历每个三角形做采样外，还需要额外的排序，加入我们把采样步骤优化到了排序里，那么画家算法的复杂度是 $O(nlogn)$
++ Z-Buffer算法只用做一次遍历即可做完整个绘制，复杂度是 $O(n)$ ，我们并没有做排序，只是记录最小值
+
+而采样三角形的复杂度取决于三角形的包围盒的大小，这里考虑最差情况就是包围盒大于或等于屏幕大小，这样对每个三角形来说都是全分辨率采样。
+
