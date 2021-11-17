@@ -29,7 +29,7 @@
 
 着色具有局部性，它只考虑当前这个点本身，不关注这个点是否遮挡其他物体
 
-### 漫反射
+### 漫反射光
 光线打到物体的表面会被均匀的散射到各个方向，从所有观察方向上都会看到同一种颜色，这就是物体的颜色
 ![diffuse_reflection](./images/diffuse_reflection.png)
 
@@ -58,7 +58,7 @@
 ![diffuse_coefficient](./images/diffuse_coefficient.png)
 这里就展示了，光照不变的情况下，漫反射系数越大那么物体就越亮
 
-### 镜面反射
+### 镜面反射光
 在光线镜面反射的出射方向附近看向shading point，会发现shading point更加明亮，也就是说镜面反射方向 ${R}$ 与观察方向 ${v}$ 的夹角越小，镜面反射光越大
 ![lookat_mirror_reflection_direction](./images/lookat_mirror_reflection_direction.png)
 
@@ -81,4 +81,59 @@ L_s &= k_s(I/r^2){max(0, \cos\alpha)}^p \\
 
 ![specular_coefficient_and_p](./images/specular_coefficient_and_p.png)
 这里就展示了，光照不变的情况下，漫反射系数越大那么物体高光就越亮；$p$值越大，高光区域就越小
+
+### 环境光
+光线经过环境中所有物体的多次反射与折射，最终照射到shading point，这一部分光太过于复杂，被Blinn-Phong模型近似成了一个固定值，不受任何参数的影响
+给出环境光的着色公式：
+![ambient_light](./images/ambient_light.png) $\LARGE L_a = k_aI_a$
++ $L_a$，环境光反射
++ $k_a$，环境光系数；如果用一个RGB值来表示这个系数，就可以表示这个shading point环境光的颜色
+
+### Blinn-Phong Reflection Model
+我们用上面提到的三种光照将Blinn-Phong光照明模型给组合起来：
+$$\LARGE\begin{split}
+L &= L_a + L_d + L_s \\
+    &= k_aI_a + k_d(I/r^2)max(0, \mathbf{n} \cdot \mathbf{l}) + k_s(I/r^2){max(0, \mathbf{n \cdot h})}^p
+\end{split}$$
+作用于模型的结果如下：
+![blinn_phong_lighting_model](./images/blinn_phong_lighting_model.png)
++ 环境光，给模型所有位置均匀的光照
++ 漫反射光，光线照射到模型的方向与模型法线，夹角越小的地方，光照越强
++ 镜面反射光，观察方向和光线的镜面反射方向接近的地方，模型会产生高光
+
 ## Shading Frequecies
+### 三种着色频率
+展示同一个球模型在三种不同着色频率的着色结果：
+![three_shading_frequencies_example](./images/three_shading_frequencies_example.png)
++ 面着色(Flat shading)，以模型的三角面为最小单位，计算光照，给面的所有像素设置相同的颜色
+    + 三角形可以求取面法线，作为光照模型的中shading point的法向
+    + 这个着色在平滑曲面的表现很不好
+    ![flat_shading](./images/flat_shading.png)
++ 顶点着色(Gouraud shading)，以模型的顶点为单位，计算每个顶点的光照，然后使用顶点颜色给三角形内的像素插值
+    + 三角形各个点的颜色由顶点插值得到
+    + 这个点所在的几个面的法线做平均来求取顶点的法线
+    + 这个着色对高光描述得不是很好
+    ![gouraud_shading](./images/gouraud_shading.png)
++ 像素着色(Phong shading)，以像素为单位，计算每个像素的光照
+    + 三角形每个像素的法线由三角形的顶点插值获得
+    + 着色是计算每个像素的颜色值
+    ![flat_shading](./images/flat_shading.png)
+
+下图展示随着模型精细度越来越高之后，不同着色频率的实际效果：
+![different_num_vertices_in_different_shading_frequencies](./images/different_num_vertices_in_different_shading_frequencies.png)
+当模型足够复杂细致（顶点、面数足够多）的时候，不同着色频率的效果以及几乎没有差别了。
+这个时候，Phong shading的劣势就凸显出来了。因为着色单位小意味着着色计算量大，那么复杂模型Phong shading的消耗就比较高了。
+
+### 顶点法向
+我们使用一种简单的策略来求顶点的法向，即算取顶点所在面的法向的平均值
+![average_face_normal](./images/average_face_normal.png) $\LARGE N_v = \frac {\sum_i N_i} {||\sum_i N_i||}$
+
+后续可以使用加权平均来做优化
+
+### 像素法向
+我们已经有了每个顶点的法向，使用三角形重心插值法，可以计算出三角形内任意一点的法向
+
+## 实时渲染管线
+### 管线总览
+![graphics_pipeline](./images/graphics_pipeline.png)
+### 
