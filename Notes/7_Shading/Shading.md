@@ -136,4 +136,25 @@ L &= L_a + L_d + L_s \\
 ## 实时渲染管线
 ### 管线总览
 ![graphics_pipeline](./images/graphics_pipeline.png)
-### 
+管线的作用就是把我们的三维场景渲染成二维的图像
+
+### 管线各阶段说明
++ Vertex Processing
+    这个阶段，主要是把我们输入的顶点进行MVP变换，得到屏幕空间的顶点表示，方便后续处理
+    ![vertex_processing_state](./images/vertex_processing_state.png)
++ Triangle Processing
+    按照一定顺序，将顶点组成不同的三角形
+    了解图形API的对这一步应该都有印象，indexbuffer的顺序就定义了如何组成三角形
++ Rasterization
+    对每个像素进行采样，判断像素在不在三角形内
+    ![rasterization_state](./images/rasterization_state.png)
++ Fragment Processing
+    + 判定每个像素位置哪些物体可见，使用Z-Buffer做深度测试
+        ![fragment_processing_state_1](./images/fragment_processing_state_1.png)
+    + 计算shading point（根据不同的着色频率决定不同粒度的shading point）的颜色，并着色
+        ![fragment_processing_state_2](./images/fragment_processing_state_2.png)
+    + 这个阶段也会做纹理映射，简单说就是把贴图（颜色、法线等等）给映射到物体的不同位置上，后面会详细说明这一部分
+        ![fragment_processing_state_3](./images/fragment_processing_state_3.png)
+    + 着色并不只是发生在这个阶段，还是拿图形学API做例子，我们也可以在 VS 阶段对顶点进行颜色修改，这也算是着色的一种
++ Framebuffer Operations
+    根据像素大小，最终生成一个用于显示的Framebuffer
