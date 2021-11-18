@@ -4,8 +4,9 @@
 + [Blinn-Phong Reflectance Model](#blinn-phong-reflectance-model)
 + [Shading Frequecies](#shading-frequencies)
 + [Graphics Pipeline](#graphics-pipeline)
-+ [Texture Mapping](#texture-mapping)
 + [Barycentric Coordinates](#barycentric-coordinates)
++ [Texture Mapping](#texture-mapping)
++ [Mipmap](#mipmap)
 
 ## Blinn Phong Reflectance Model
 ### 光线类型
