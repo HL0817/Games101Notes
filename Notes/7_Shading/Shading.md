@@ -230,6 +230,62 @@ $$\LARGE \begin{split}
 + `u, v` 值的范围默认为 $[0, 1]$
 
 ### 使用纹理
+我们有顶点和顶点对应的纹理坐标，那么使用纹理坐标为顶点取数据就是一件很自然的事情。我们只需要拿着顶点的纹理坐标去纹理上做查询，或者说去纹理上做采样，就能得到对应的数值。
+在 shader 里常见的形式是这样
+```
+(u, v) = evaluate texture coordinate at (x, y);
+texcolor(x, y) = textur.sample(u, v);
+```
+这里以漫反射系数（即物体颜色）为例，我们去采样每一个像素的颜色，得到物体每个像素的漫反射系数
+
+### 纹理放大
+#### 纹素
+我们把屏幕最小的显色单位叫做像素（pixel），对应的我们把纹理的最小单位叫做纹素（texel），可以用 `A pixel on a texture` 来理解
+#### 纹素过小
+我们来想象一下，我们为一个很大像素的物体采样一张很小的纹理，那么很多像素会被映射到同一个纹素上，最终呈现在画面上就有许多类似锯齿的形状
+![smaller_texel](./images/smaller_texel.png)
+#### 双线性插值
+我们使用双线性插值（Bilinear Interpolation）来解决纹素过小的问题，让某些像素的纹理变换不那么剧烈
+![smaller_texel_using_bilinear_interpolation](./images/smaller_texel_using_bilinear_interpolation.png)
+
+基本步骤如下：
++ 有一个 $4 \times 4$ 的纹理，我们用像素更多的对象对它进行采样
+    这个红色点的纹理采样值应该怎么计算
+    ![bilinear_interpolation_0](./images/bilinear_interpolation_0.png)
+    *~~最简单的方法就是取离红色点最近的纹素，但这显然不能解决问题~~*
++ 我们找到离红色点最近的四个纹素
+    如下图选取的浅红色纹素
+    ![bilinear_interpolation_1](./images/bilinear_interpolation_1.png)
++ 我们计算出离红色点最远的纹素，距离红色点的水平距离和竖直距离
+    水平和竖直距离我们使用 $(s, t)$ 表示
+    ![bilinear_interpolation_2](./images/bilinear_interpolation_2.png)
++ 我们定义线性插值（Linear Interpolation）
+    + $lerp(x, v_0, v_1) = v_0 + x(v_1 - v_0)$
+    + 直白的说，据说按照比例 $x$ 去 $v_0, v_1$ 线性的取对应的点
++ 我们先对纹素做水平线性插值，得到竖直方向的两个点 $u_0, u_1$
+    + $u_0 = lerp(s, u_{00}, u_{10})$
+    + $u_1 = lerp(s, u_{01}, u_{11})$
+    ![bilinear_interpolation_3](./images/bilinear_interpolation_3.png)
++ 我们最后对 $u_0, u_1$ 做竖直的插值，就得到了红色点处的纹素的值
+    + $f(x, y) = lerp(t, u_0, u_1)$
+    ![bilinear_interpolation_4](./images/bilinear_interpolation_4.png)
+
+#### 纹素过大
+那么反过来，我们为物体采样一张很大的纹理，每个像素采样得到的纹素都距离很远（一个像素对应一片纹素区域），最终呈现到画面上远处有摩尔纹，近处有锯齿
+![bigger_texel](./images/bigger_texel.png)
+
+分析一下原因
+![far_pixel_sampling_more_texels](./images/far_pixel_sampling_more_texels.png)
+我们发现，像素采样纹理的区域不是固定的，距离越远的像素，采样的纹素越多，但是我们只能取其中一个纹素来代表整个采样区域的纹素值变化，这显然的不对的
+远处的像素对应的纹素太多了，也就是远处的采样频率太低了（纹素多也就是频率高，像素少对应采样频率低），我们是否可以使用反走样来解决这个问题呢？显然可以，下图是 $512 \times$ supersampling 的结果
+![supersampling_solve_big_texel](./images/supersampling_solve_big_texel.png)
+
+超采样的效果很好，但是它的性能消耗也是非常巨大的，这一点我们并不能接受
+那么我们转变一下思路，既然不能提高采样频率，那么我们直接就取这块纹素区域的平均值作为采样的结果，即得到某个区域的平均值，也被叫做范围查询
++ 点查询：查询像素和纹理对应的值
++ 范围查询：查询某一个范围内纹理的值（可以查范围内的平均值，最大值，最小值等特殊值），简单理解就是以某个方法得到一个值来代表这个范围的对外查询值
+
+范围查询其实可以理解成，我们把信号的频率降低了，降低到采样频率可以接受的范围，这样就减缓了走样问题
 
 ## Mipmap
 ### 采样大纹理的问题
