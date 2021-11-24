@@ -346,6 +346,103 @@ texcolor(x, y) = textur.sample(u, v);
 范围查询其实可以理解成，我们把信号的频率降低了，降低到采样频率可以接受的范围，这样就减缓了走样问题
 
 ## Mipmap
-### 采样大纹理的问题
-### 生产Mipmap
-### 双线性插值优化Mipmap
+图形学上广泛使用的范围查询的方法
++ 快速查询
++ 近似查询，结果不准确
++ 方形查询，只能在正方形范围做查询
+
+下面是128分辨率的贴图和它的mipmap：
+
+![level7_mipmap_example](./images/level7_mipmap_example.png)
+
+每一级mipmap贴图的分辨率都是上一级的一半
+
+我们来估算一下mipmap的消耗，假设原贴图的长度为1，可以得到以下计算公式：
+$$\begin{split}
+mipmap
+&= 1 \times 1 + \frac {1} {2} \times \frac {1} {2}+ \frac {1} {4} \times \frac {1} {4}+ \frac {1} {8} \times \frac {1} {8} + \cdot \cdot \cdot + \frac {1} {2^{level}} \times \frac {1} {2^{level}} \\
+&\lessapprox \frac {4} {3}
+\end{split}$$
+所以Mipmap相较于原图，消耗仅仅增加了 $1/3$
+
+### 计算Mipmap等级
+#### Mipmap Level D
+![mipmap_level_D](./images/mipmap_level_D.png)
+
+我们通常把原图叫做 $D = 0$ ，即mipmap等级为0
+
+#### 计算过程
+在采样纹理之前，我们将像素从屏幕空间还原到纹理空间
+
+![screen_sapce_to_texture_space](./images/screen_sapce_to_texture_space.png)
+
+这里可以清晰的看见，原来紧密的像素还原到纹理空间后间距变大了，这表示这个像素需要采样的纹理的区域从一个纹素变成了一个纹素区域
+
+我们现在来确认，其中一个像素该采样的纹理区域有多大
+
+![computing_L_in_four_dir](./images/computing_L_in_four_dir.png)
+
+我们使用在纹理空间像素和周围其他像素的距离来组成一个四边形，这个四边形就是该像素采样时范围查询的区域
+公式著名的“DDX,DDY”算法来计算这个距离：
+$$L = max\Bigg(\sqrt{(\frac{du}{dx})^2 + (\frac{dv}{dx})^2}, \sqrt{(\frac{du}{dy})^2 + (\frac{dv}{dy})^2}\Bigg)$$
+这里为什么会使用max函数呢？
+还记得吗，mipmap只能做方形查询，因此我们取最长的距离来将原来的区域近似为方形
+
+![approx_to_max_L_square](./images/approx_to_max_L_square.png)
+
+我们需要做的就是根据我们得到的 $L$ 来找到对应的mipmap等级 $D$
+我们在前面计算面积的时候有这样一个规律：第 $level$ 层的长度为 $2^{level} = 2^D = L$
+那么现在我们知道 $L$ ，自然可以求出 $level = D = lgo_{2}{L}$
+
+我们现在可以了立即采样对应等级的mipmap了
+
+我们可视化使用mipmap的结果
+
+![visualization_of_mipmap_level](./images/visualization_of_mipmap_level.png)
+
+但是结果并不连续，他的每一层差异很明显
+
+### 三线性插值优化Mipmap
+我们使用三线性插值（Trilinear Interpolation）来解决每一层的差异问题
+
+![trilinear_interpolation_in_mipmap](./images/trilinear_interpolation_in_mipmap.png)
+
++ 分别为 level D 和 level D+1 做双线性插值求出各自等级纹理数据
++ 把 Bilinear result D 和 Blinear result D+1 再做一次线性插值，得到mipmap层级连续的纹理数据
+
+每层计算纹理数据是双线性插值，即做了两次线性插值，把结果再做一次线性插值就被叫做三线性插值（Trilinear Interpolation）
+
+![trilinear_interpolation_result](./images/trilinear_interpolation_result.png)
+
+计算开销不大的情况下，效果还是很好的
+
+### mipmap的缺陷
+我们尝试解决原问题场景：
+
+![mipmap_limitation](./images/mipmap_limitation.png)
+
+我们确实将原问题的锯齿和隔断的去掉了（左问题场景，中原图，右mipmap），但是mipmap采样得到的结果，非常的模糊（Overblur）
+
+原因是，mipmap只能做方形查询
+
+![mipmap_limitation_reason](./images/mipmap_limitation_reason.png)
+
+当像素映射到类似矩形的区域，再使用最大长度做mipmap level计算，就相当于使用了一个更大的方形区域做采样，求了一个大区域的平均，这就是做了一次模糊，就造成了Overblur
+
+### 各向异性过滤缓解Overblur
+各向异性过滤（Anisotropic Filtering，各向异性指各个方向表现不相同）对应的处理贴图方法叫做Ripmap
+mipmap是对原贴图做每次缩小长宽各一半的压缩，而Ripmap做的就是分别对长和宽方向做原长度一般的压缩
+
+![ripmap_example](./images/ripmap_example.png)
+
+对角线的压缩结果就是mipmap，水平和竖直方向的压缩结果就是Ripmap
+
+![ripmap_result](./images/ripmap_result.png)
+
+最右就是各向异性过滤的结果，效果还算比较不错，但它只能解决类似矩形区域查询的问题，如果其他形状的区域查询，仍然有问题
+
+### EWA filtering解决Overblur
+![EWA_filtering](./images/EWA_filtering.png)
+
+大致思路为：把任意形状分解为不同的圆形，然后又对圆形进行多次查询，得到较为准确的结果
+多次查询，开销较大，基本没有被使用到
