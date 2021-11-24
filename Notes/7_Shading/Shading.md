@@ -51,7 +51,7 @@
     + 由能量守恒假设光能不会衰减，那么每个时刻的光能总量不变，即每个光圈代表的能量相同
     + 那么随着距离的增加，光圈面积变大，那么单位面积内接收到的光能就减小了
     + 光能大小和球体面积的增加成反比，即 $I/r^2$
-    
+
     ![light_falloff_by_distance](./images/light_falloff_by_distance.png)
     
 给出漫反射的着色公式：
@@ -139,6 +139,7 @@ L &= L_a + L_d + L_s \\
 下图展示随着模型精细度越来越高之后，不同着色频率的实际效果：
 
 ![different_num_vertices_in_different_shading_frequencies](./images/different_num_vertices_in_different_shading_frequencies.png)
+
 当模型足够复杂细致（顶点、面数足够多）的时候，不同着色频率的效果以及几乎没有差别了。
 这个时候，Phong shading的劣势就凸显出来了。因为着色单位小意味着着色计算量大，那么复杂模型Phong shading的消耗就比较高了。
 
@@ -206,6 +207,7 @@ $$
 现在我们来算线性组合系数
 
 ![proportional_areas](./images/proportional_areas.png)
+
 顶点的系数，等于顶点对应的那条边与任意点组成的三角形与原三角形的面积比，公式如下：
 $$\LARGE
 \alpha = \frac {A_A} {A_A + A_B + A_C} \\
@@ -227,6 +229,7 @@ $$\LARGE \begin{split}
 如果我们分别给 $A, B, C$ 三个点设置为 $R, G, B$ 三种颜色，那么我们可以得到这样一个重心插值结果：
 
 ![interpolate_using_barycentric_coordinates](./images/interpolate_using_barycentric_coordinates.png)
+
 得到了一个非常丝滑的结果
 
 ## 纹理映射
@@ -234,6 +237,7 @@ $$\LARGE \begin{split}
 纹理映射就用一张图去填充物体的表面，让物体各个位置有自己的颜色值。推广开来就是，我们用图来存储物体表面各个位置的不同属性，然后在着色阶段，我们根据这张图来获取想要的位置的属性。
 
 ![texture_mapping_example](./images/texture_mapping_example.png)
+
 我们以Blinn-Phong的漫反射为例，漫反射着色公式：$L_d = k_d*(l/r^2)*(\mathbf{n \cdot l})$
 + 图中皮球的漫反射光都是使用同一个漫反射公式，球的任意一点离光源的距离一样，但各个部分的颜色并不相同，这就是球各个位置都有自己的漫反射系数
 + 图中的地板也是这样，距离光源的位置没有改变，但各个部分的颜色也不尽相同，地板模型各个位置的漫反射系数不同
@@ -245,17 +249,21 @@ $$\LARGE \begin{split}
 这种对应过程，有一点需要我们去理解：**任何一个三维物体，它的表面都是二维的**，我们通过地球与地图的关系来理解这一点
 
 ![3d_object_surface_is_2d](./images/3d_object_surface_is_2d.png)
+
 地球本身是一个三维物体，但我们制作的地图都是二维的，我们将地球绘制到图上，这个过程就是纹理映射的过程
 
 展示一个纹理应用到物体表面的例子：
 
 ![texture_example_model](./images/texture_example_model.png)
+
 这是一个模型着色前和着色后的样子
 
 ![texture_example_texture](./images/texture_example_texture.png)
+
 这是模型的颜色纹理图，我们可以找到眼睛下方的一块小三角形
 
 ![texture_example_texture_mapping](./images/texture_example_texture_mapping.png)
+
 这个纹理上的小三角形与模型表面的小三角形一一对应，我们找到对应的地方，将颜色绘制上去
 
 我们将模型的每一个顶点都映射到纹理上，使用一个叫纹理坐标的坐标系进行表示
@@ -280,6 +288,7 @@ texcolor(x, y) = textur.sample(u, v);
 我们来想象一下，我们为一个很大像素的物体采样一张很小的纹理，那么很多像素会被映射到同一个纹素上，最终呈现在画面上就有许多类似锯齿的形状
 
 ![smaller_texel](./images/smaller_texel.png)
+
 #### 双线性插值
 我们使用双线性插值（Bilinear Interpolation）来解决纹素过小的问题，让某些像素的纹理变换不那么剧烈
 
@@ -290,6 +299,7 @@ texcolor(x, y) = textur.sample(u, v);
     这个红色点的纹理采样值应该怎么计算
 
     ![bilinear_interpolation_0](./images/bilinear_interpolation_0.png)
+
     *~~最简单的方法就是取离红色点最近的纹素，但这显然不能解决问题~~*
 + 我们找到离红色点最近的四个纹素
     如下图选取的浅红色纹素
@@ -320,6 +330,7 @@ texcolor(x, y) = textur.sample(u, v);
 分析一下原因
 
 ![far_pixel_sampling_more_texels](./images/far_pixel_sampling_more_texels.png)
+
 我们发现，像素采样纹理的区域不是固定的，距离越远的像素，采样的纹素越多，但是我们只能取其中一个纹素来代表整个采样区域的纹素值变化，这显然的不对的
 远处的像素对应的纹素太多了，也就是远处的采样频率太低了（纹素多也就是频率高，像素少对应采样频率低），我们是否可以使用反走样来解决这个问题呢？显然可以，下图是 $512 \times$ supersampling 的结果
 
