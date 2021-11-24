@@ -61,11 +61,13 @@
 
 ### 镜面反射光
 在光线镜面反射的出射方向附近看向shading point，会发现shading point更加明亮，也就是说镜面反射方向 ${R}$ 与观察方向 ${v}$ 的夹角越小，镜面反射光越大
-    ![lookat_mirror_reflection_direction](./images/lookat_mirror_reflection_direction.png)
+
+![lookat_mirror_reflection_direction](./images/lookat_mirror_reflection_direction.png)
 
 在 Blinn-Phong光照模型中，镜面反射方向和观察方向的关系转换为了半程向量与法向的关系
 + 半程向量与法向越接近，表示镜面反射方向与观察方向越接近
-    ![half_vector_near_normal](./images/half_vector_near_normal.png)
+
+![half_vector_near_normal](./images/half_vector_near_normal.png)
 + 镜面反射方向比较难求，但是半程向量非常好计算
 + 半程向量公式：$h = bisector(\mathbf{v}, \mathbf{l}) = \frac {\mathbf{v + l}} {||\mathbf{v + l}||}$
 
