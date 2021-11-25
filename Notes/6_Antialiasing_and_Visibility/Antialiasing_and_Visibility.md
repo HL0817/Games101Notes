@@ -1,5 +1,5 @@
 # Antialiasing and Visibility
-If you can not render Mathematical formula, please read this [Anitaliasing_and_Visibility.pdf](./Anitaliasing_and_Visibility.pdf)
+If you can not render Mathematical formula, please read this [Antialiasing_and_Visibility.pdf](./Antialiasing_and_Visibility.pdf)
 
 ## 目录
 + [Antialiasing](#antialiasing)
