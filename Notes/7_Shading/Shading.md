@@ -3,10 +3,11 @@
 ## 目录
 + [Blinn-Phong Reflectance Model](#blinn-phong-reflectance-model)
 + [Shading Frequecies](#shading-frequencies)
-+ [Graphics Pipeline](#graphics-pipeline)
-+ [Barycentric Coordinates](#barycentric-coordinates)
-+ [Texture Mapping](#texture-mapping)
++ [实时渲染管线](#实时渲染管线)
++ [重心坐标插值](#重心坐标插值)
++ [纹理映射](#纹理映射)
 + [Mipmap](#mipmap)
++ [纹理的应用](#纹理的应用)
 
 ## Blinn Phong Reflectance Model
 ### 光线类型
@@ -446,3 +447,89 @@ mipmap是对原贴图做每次缩小长宽各一半的压缩，而Ripmap做的�
 
 大致思路为：把任意形状分解为不同的圆形，然后又对圆形进行多次查询，得到较为准确的结果
 多次查询，开销较大，基本没有被使用到
+
+## 纹理的应用
+这里介绍一下场景的纹理的应用场景和对应的技术
+### 环境贴图
+![environment_map](./images/environment_map.png)
+
+我们将周围的光照信息（环境光）收集到一张纹理上，然后将它应用到物体表面，以这样的方式来模拟物体对周围的反射
+
+#### Spherical Environment Map
+我们可以将环境信息记录到一个球形贴图上，它包含了周围360度的环境信息，可以很好的记录物体周围的环境信息
+
+![spherical_environment_map](./images/spherical_environment_map.png)
+
+但是把它展开成一个正常贴图，会在上方和下方产生扭曲（世界地图的上下靠近极点处较小，就是这个原因）
+
+![spherical_map_problem](./images/spherical_map_problem.png)
+
+#### Cube Map
+我们可以将球面映射到一个立方体上，来消除球形贴图展开产生的扭曲
+这个映射的过程就是，球心和球面连线的延长线达到立方体表面的某一个点，一一做对应
+
+![cube_map](./images/cube_map.png)
+
+看一下立方体贴图的展开面是什么样子
+
+![cubemap_face_texture](./images/cubemap_face_texture.png)
+
+这个展开的贴图已经没有扭曲现象了，它仍然记录了周围环境的信息
+
+### 影响着色
+纹理不止可以表示颜色，还可以存储一些其他在着色中可能使用到的数据
+#### Bump Mapping
+我们以使用凹凸映射（Bump Mapping）来模拟物体凹凸不平的表面
+
+![bump_mapping_example](./images/bump_mapping_example.png)
+
+图中橘子凹凸不平的表面，并不是我们做了这么细致的建模，而是我们使用贴图来改变了着色的结果，模拟处理凹凸不平的效果
+
+基本原理：
++ 不改变顶点的位置
++ 扰动每个像素的面法线
++ 使用纹理来定义每个纹素的相对高度
++ 由高度差引起面法线发生改变
+
+![perturb_surface_normal](./images/perturb_surface_normal.png)
+
+在这整个过程中我们只是假设对物体表面进行了高度变换，经过计算求出了变换后的法线，把这个法线应用到最后的着色上
+
+我们现在来看扰动法线的过程（以2D为例）：
++ 原表面点 p 的面法线是 $n(p) = (0, 1)$
++ 高度变换后，我们算出变换后点 P 的切线 $dp = c * [h(p+1) - h(p)]$
+    + c 是认为引入的常数，用来表示高度图的影响程度
+    + 我们使用差分方法求切线
+    + 点 p 的切线 $t(p) = (1, dp)$
++ 使用切线旋转90度算出扰动后的法线 $n(p) = (-dp, 1)$
+
+![calculate_perturbed_normal](./images/calculate_perturbed_normal.png)
+
+推广到三维时，同理：
++ 原表面点 p 的面法线是 $n(p) = (0, 0, 1)$
++ 纹理的 u, v 方向分别求导
+    + $dp/du = c1 * [h(u+1) - h(u)]$
+    + $dp/dv = c2 * [h(v+1) - h(v)]$
++ 使用切线旋转90度算出扰动后的法线 $n(p) = (-dp/du, -dp/dv, 1)$
+
+#### Displacement Mapping
+位移映射，使用凹凸映射用到的同一张高度贴图，对顶点进行实际的位移操作，改变模型顶点的位置（需要模型的三角形足够细，能支持我们使用高度图对顶点进行位移）
+
+![bump_mapping_and_displacement_mapping_example](./images/bump_mapping_and_displacement_mapping_example.png)
+
+可以看到凹凸映射在物体边缘和阴影形状上会露馅，但是位移映射就没有这样的问题
+
+#### 3D Procedural Noise + Solid Modeling
+将纹理假设为3维的，我们可以使用立体纹理来表示任意一点的值，它被表示为3维空间的噪声函数，我们根据3维空间的坐标去算出噪声值，然后应用到物体上
+
+![3d_procedural_noise](./images/3d_procedural_noise.png)
+
+#### 环境光遮罩
+模型的环境光也不总是一样，在角落或者沟壑，环境光应该相对较弱，我们可以使用环境光遮罩贴图来记录这些信息，并将它用到着色过程中
+
+![ambient_occlusion_texture_map](./images/ambient_occlusion_texture_map.png)
+
+#### 3D Textures and Volume Rendering
+一些立体的空间每一点的信息，我们也可以把它当做纹理来处理（如X光扫描，核磁共振的结果等等）
+
+![3d_textures_and_volume_rendering](./images/3d_textures_and_volume_rendering.png)
