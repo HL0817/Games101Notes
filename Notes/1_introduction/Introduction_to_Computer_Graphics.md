@@ -55,7 +55,9 @@ The use of computers to synthesize and manipulate visual information.
 
 ### 特殊内容
 课程里面讲了计算机视觉和计算机图形学的区别，加上了闫令琪博士自己的一些理解：
+
 ![differences_of_model_and_image](./images/differences_of_model_and_image.jpg)
+
 先解释一些四个指向线段的含义：
 + model->image：三维空间中的模型及其信息转换为一幅图，就是渲染的过程，属于计算机图形学的范畴；
 + iamge->model：识别图像中的信息，转换为具体的某几个模型，从图像分析出信息的具体结构，属于计算机视觉的领域；

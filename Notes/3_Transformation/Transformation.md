@@ -11,7 +11,9 @@ If you can not render Mathematical formula, please read this [image_Transformati
 
 #### Scale Transform
 等比缩放：将图像的横轴和纵轴都缩放0.5，变为原来的 $ 1/2 $
+
 ![scale_transform](./images/scale_transform.jpg)
+
 + 数学形式：
     > $ x' = sx $
     > $ y' = sy $
@@ -20,7 +22,9 @@ If you can not render Mathematical formula, please read this [image_Transformati
     > = \begin{bmatrix} s_x & 0 \\ 0 & s_y \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix} }$
 
 非等比缩放：将图像的横轴缩放0.5，纵轴不变
+
 ![non_uniform_scale_transform](./images/non_uniform_scale_transform.jpg)
+
 + 缩放矩阵：
     > $ s_x = 0.5 $
     > $ s_y = 1 $
@@ -29,7 +33,9 @@ If you can not render Mathematical formula, please read this [image_Transformati
     > = \begin{bmatrix} s_x & 0 \\ 0 & s_y \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix} }$
 
 #### Reflection Matrix
+
 ![reflection_transform](./images/reflection_transform.jpg)
+
 水平方向翻转，图像相对于 $y$ 轴做了翻转
 + 数学形式：
     > $ x' = -x $
@@ -39,7 +45,9 @@ If you can not render Mathematical formula, please read this [image_Transformati
     > = \begin{bmatrix} -1 & 0 \\ 0 & 1 \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix} }$
 
 #### Shear Matrix
+
 ![shear_transform](./images/shear_transform.jpg)
+
 图像所有的点，竖直方向没有改变，水平方向做了一定规律的移动
 + 数学形式：
     > $ x' = x + ay $
@@ -50,7 +58,9 @@ If you can not render Mathematical formula, please read this [image_Transformati
 
 #### Rotation Matrix
 **默认情况下，绕远点做逆时针旋转**
+
 ![rotation_transform](./images/rotation_transform.jpg)
+
 图像旋转45°（默认绕远点 $(0,0)$ 逆时针旋转45°）
 + 数学形式：
     > $ x' = x\cos\theta - y\sin\theta $
@@ -81,7 +91,9 @@ If you can not render Mathematical formula, please read this [image_Transformati
 
 #### Translation
 水平和竖直方向加上一定的偏移量
+
 ![translation_transform](./images/translation_transform.jpg)
+
 + 数学形式：
     > $ x' = x + t_x $
     > $ y' = x + t_y $
@@ -147,10 +159,13 @@ If you can not render Mathematical formula, please read this [image_Transformati
 
 #### Inverse Transform
 图像经过变换矩阵 $M$ 变换得到新的图像，此时把新图像变换回原来的图像，这个变换过程被称为逆变换，变换矩阵数学上就是矩阵 $M$ 的逆矩阵 $M^{-1}$
+
 ![inverse_transform](./images/inverse_transform.jpg)
 
 ## 变换的合成
+
 ![how_to_transform](./images/how_to_transform.jpg)
+
 我们要得到这样一个结果，需要经过多个变换过程，先旋转后平移或者先平移后旋转都能达到目的
 
 #### 变换的顺序
@@ -184,7 +199,9 @@ $n$ 个 $3 \times 3$ 的矩阵相乘得到的结果仍然是一个 $3 \times 3$ 
 #### 分解复合的变换
 矩阵可以合成，那么就可以分解
 举个例子，我们想绕给定的点 $c$ 进行旋转：
+
 ![decomposing_transform](./images/decomposing_transform.jpg)
+
 我们先将图像移回原点，然后绕原点旋转，再把得到的结果移回给定的点，这样就得到了这个变换的结果
 我们把它记为：$Result = M_c \cdot \begin{pmatrix} x \\ y \\ 1 \end{pmatrix} $
 我们按照图示中的过程把它分解出来得到

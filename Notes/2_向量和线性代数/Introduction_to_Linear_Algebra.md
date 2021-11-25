@@ -17,12 +17,16 @@ If you can not render Mathematical formula, please read this [image_Introduction
 + 求某个向量 $\overrightarrow{a}$ 的单位向量：${\hat{a}} = {\overrightarrow{a}} / {\lVert \overrightarrow{a} \rVert}$
 + 我们一般默认单位向量表示方向，这一点被计算机图形学广泛使用
 ### 向量求和
+
 ![vector_addition](./images/vector_addition.jpg)
+
 + 几何表示：如图，根据平行四边形法则或三角形法则求和
 + 代数表示：坐标值直接相加即可（参照下面的坐标系表示向量）
 + ${\overrightarrow{a}} - {\overrightarrow{b}} = {\overrightarrow{a}} + (-{\overrightarrow{b}})$，相减时可以转换为做加法
 ### 向量的坐标系表示
+
 ![cartesian_coordinates](./images/cartesian_coordinates.jpg)
+
 + 向量可以用坐标系（常用正交坐标系）表示
 + 表示时默认向量的起始位置在原点
 
@@ -33,7 +37,9 @@ If you can not render Mathematical formula, please read this [image_Introduction
 向量求长度：$\LARGE{ {\lVert \mathbf{A} \rVert} = { \sqrt{x^2 + y^2} } }$
 ### 向量的乘法
 #### 点乘
+
 ![vector_dot_product](./images/vector_dot_product.jpg)
+
 >$\LARGE{
     { \overrightarrow{a} \cdot \overrightarrow{b} }
     = { {\lVert \overrightarrow{ a } \rVert} {\lVert \overrightarrow{ b } \rVert} {\cos\theta} }
@@ -76,22 +82,30 @@ If you can not render Mathematical formula, please read this [image_Introduction
         = \dfrac{ \overrightarrow{a} \cdot \overrightarrow{b} }{ {\lVert \overrightarrow{ a } \rVert} {\lVert \overrightarrow{ b } \rVert} }
     $
 + **获取一个向量在另一个向量上的投影**
+
     ![projection_of_vector](./images/projection_of_vector.jpg)
+
     >定义$ \overrightarrow{b}_\perp $是$ \overrightarrow{b} $在$ \overrightarrow{a} $上的投影
     >显然，$ \overrightarrow{b}_\perp $属于$ \overrightarrow{a} $（或者说是属于$ \hat{a} $），$ \overrightarrow{b}_\perp = k\hat{a} $
     >$ k = \lVert { \overrightarrow{b}_\perp } \rVert = \lVert { \overrightarrow{b} } \rVert $
 + **将向量按某个方向垂直和水平的分解**
+
     ![decompose_vector](./images/decompose_vector.jpg)
+
     >将$ \overrightarrow{b} $投影到$ \overrightarrow{a} $方向上，得到水平的分解量：$ \overrightarrow{b}_\perp $
     >设垂直分量为$ \overrightarrow{b_n} $，显然$ \overrightarrow{b} = \overrightarrow{b}_\perp + \overrightarrow{b_n} $
     >移项得到垂直分量：$ \overrightarrow{b} - \overrightarrow{b}_\perp $
 + **判断向量相较于另一方向是向前还是向后**
+
     ![determine_direction](./images/determine_direction.jpg)
+
     >$ \overrightarrow{b} $相对于$ \overrightarrow{a} $是朝前的：$ \overrightarrow{a} \cdot \overrightarrow{b} > 0 $
     >$ \overrightarrow{c} $相对于$ \overrightarrow{a} $是朝后的：$ \overrightarrow{a} \cdot \overrightarrow{b} < 0 $
 
 #### 叉乘
+
 ![vector_cross_product](./images/vector_cross_product.jpg)
+
 >两个向量叉乘获得一个垂直于原向量的一个新向量
 >方向：右手螺旋定则：握手比大拇指的，四指按图中$\overrightarrow{a}$朝向$\overrightarrow{b}$的逆时针方向握，大拇指自然指向上，大拇指方向就是叉乘向量的方向
 >大小：$\LARGE{
@@ -126,11 +140,15 @@ If you can not render Mathematical formula, please read this [image_Introduction
 }$
 ##### 图形学中的应用
 + **判断向量在另一个向量的左边还是右边**
+
     ![cross_determine_left_right](./images/cross_determine_left_right.jpg)
+
     >$ \overrightarrow{a} \times \overrightarrow{b} $为正：$\overrightarrow{b}$在$\overrightarrow{a}$的右侧
     >$ \overrightarrow{a} \times \overrightarrow{b} $为负：$\overrightarrow{b}$在$\overrightarrow{a}$的左侧
 + **判断点P在三角形内还是外**
+
     ![cross_determine_inside_outside](./images/cross_determine_inside_outside.jpg)
+    
     >+ 计算$(\overrightarrow{AP} \times \overrightarrow{AB})$、$(\overrightarrow{BP} \times \overrightarrow{BC})$、$(\overrightarrow{CP} \times \overrightarrow{CA})$得到的三个向量是否同向
     *ABC三个点必须按顺时针或者逆时针取边的向量*
     >+ 如果同向，则点P在三角形内，否则点P就在三角形外

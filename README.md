@@ -13,6 +13,7 @@
     + [Viewing transformation](./Notes/4_Viewing_transformation/Viewing_transformation.md)
     + [Rasterization](./Notes/5_Rasterization/Rasterization.md)
     + [Antialiasing and Visibility](./Notes/6_Antialiasing_and_Visibility/Antialiasing_and_Visibility.md)
+    + [Shading](./Notes/7_Shading/Shading.md)
 ****
 他人[笔记](https://blog.csdn.net/qq_38065509)，作参考
 

@@ -13,7 +13,9 @@ If you can not render Mathematical formula, please read this [image_Viewing_tran
     + [Perspective projection](#perspective-projection)
 
 将 3维空间中的东西放到 2维的窗口显示出来需要经过以下几个步骤：
+
 ![coordinate_systems](./images/coordinate_systems.png)
+
 + model transformation
     将模型从模型空间转换到世界空间
 + view transformation
@@ -25,7 +27,9 @@ If you can not render Mathematical formula, please read this [image_Viewing_tran
 
 ## View Transformation
 #### define a camera
+
 ![define_a_camera](./images/define_a_camera.jpg)
+
 + 位置（eye position）：$\overrightharpoon{e}$
 + 观察方向（Look-at/gaze direction)：$\hat{g}$
 + 向上方向（Up direction）：$\hat{t}$
@@ -33,7 +37,9 @@ If you can not render Mathematical formula, please read this [image_Viewing_tran
 通过这个三个属性，我们在世界空间中定义了一个相机。
 
 #### 观察空间
+
 ![define_viewspace_position](./images/define_viewspace_position.jpg)
+
 相机和模型的相对位置固定，现在我们做视图变换，变换后的相机和模型的相对位置没有改变。
 我们假定，变换后的相机在观察空间的位置：
 + 位置（eye position）：$\overrightharpoon{e} = (0, 0, 0)$
@@ -42,7 +48,9 @@ If you can not render Mathematical formula, please read this [image_Viewing_tran
 
 #### 视图变换
 由于相对位置没有改变，我们对相机做视图变换，就相当于对模型做了视图变换。现在我们需要求一个矩阵，将我们定义在世界空间的相机变换到观察空间的固定位置，所得的矩阵就是我们需要的视图变换矩阵。
+
 ![view_transformation](./images/view_transformation.jpg)
+
 使用变换矩阵 $M_{view}$ 将相机从世界空间变换到观察空间
 + 将 $\overrightharpoon{e}$ 平移到原点
 + 将 $\hat{g}$ 旋转到 $-Z$ 轴
@@ -74,17 +82,23 @@ $R = \begin{bmatrix}
 我们已经求得了视图变换矩阵 $M_{view}$，模型乘上这个矩阵就获得了观察空间的模型位置。
 
 ## Projection Transformation
+
 ![form_perspective_to_orthographic](./images/form_perspective_to_orthographic.jpg)
+
 相机和截面形成一个锥体，把锥体中远截面到近截面的相机所看到的物体给映射到 2维屏幕上的过程，被称为投影变换。
 + 透视投影：相机在**不远处**的一个点上，近截面小远截面大，把近远截面所形成的视锥体内的物体映射到近截面上
 + 正交投影：相机在**无限远**的一个点上，近截面和远截面一样大，将视锥体（长方体）内的物体映射到近截面上
 
 #### Orthographic Projection
+
 ![orthographic_projection_example](./images/orthographic_projection_example.jpg)
+
 我们从原点，以 $y$轴为向上方向，看向 $-z$的方向，然后忽略 $z$轴就能得到这个模型在 $xy$平面的投影，然后我们把它挪到 $[-1, 1]$的矩阵上，就得到了正交投影
 
 我们如何求取变换矩阵？
+
 ![orthographic_projection_transformation](./images/orthographic_projection_transformation.jpg)
+
 我们把 $[l, r] \times [b, t] \times [f, n]$的视锥体映射到原点的 ${[-1, 1]}^3$的规范立方体（canonical cube）的过程就是正交投影的过程
 投影过程简写为：$M_{ortho} = S_{ortho}T_{ortho}$
 + 将视锥体中心平移到原点
@@ -106,7 +120,9 @@ $M_{ortho} =
 \end{bmatrix}$
 
 #### Perspective Projection
+
 ![perspective_projection_example](./images/perspective_projection_example.jpg)
+
 + 在计算机图形学，美术等领域使用广泛
 + 近大远小
 + 平行线不再平行，相交于一个点
@@ -114,7 +130,9 @@ $M_{ortho} =
 
 现在我们来做透视投影：
 + 将透视投影的视锥体变换到正交投影的视锥体（$M_{persp->ortho}$）
+
 ![frustum_to_cuboid](./images/frustum_to_cuboid.jpg)
+
 + 得到的视锥体做一次正交投影
 
 这样我们就能得到透视投影的结果
@@ -122,7 +140,9 @@ $M_{ortho} =
 那么，$M_{persp->ortho}$该如何求取？
 我们从透视投影视锥体的侧面来看，这里我们只关注上半部分
 变换后的点 $(x', y', z')$ 和原来的点 $(x, y, z)$ 的关系如下：
+
 ![similar_triangle](./images/similar_triangle.jpg)
+
 $ x' = {\frac n z}x $ 和 $ y' = {\frac n z}y $
 
 我们写出它的齐次坐标表示：$
@@ -177,10 +197,13 @@ n & 0 & 0 & 0 \\
 我们定义相机到近截面的关系：
 + **field-of-view(fovY)**：视角，表示相机可以看到的近截面的上下范围，如下图两个红色线段的夹角
 + **aspect ratio**：宽高比，表示相机可以看到的近截面的大小，如下图近截面的宽高之比
+
 ![fovY_and_aspect_ratio](./images/fovY_and_aspect_ratio.jpg)
 
 我们同样从侧面来观察这个四棱锥，看一下 $l$、$r$、$b$、$t$ 与定义之间的关系：
+
 ![fovY_and_aspect_ratio_map_lrbt](./images/fovY_and_aspect_ratio_map_lrbt.jpg)
+
 $\LARGE{\tan{\frac {fovY} 2} = \frac t {\lVert n \rVert}} \\ {aspect = \frac r t}$
 
 现在我们已经可以通过 $fovY$、$aspect$、$n$、$f$ 来做透视投影变换了
