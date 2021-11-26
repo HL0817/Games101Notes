@@ -1,4 +1,5 @@
 # Shading
+If you can not render Mathematical formula, please read this [Shading.pdf](./Shading.pdf)
 
 ## 目录
 + [Blinn-Phong Reflectance Model](#blinn-phong-reflectance-model)

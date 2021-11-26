@@ -1,8 +1,8 @@
 # Introduction to Linear Algebra
-If you can not render Mathematical formula, please read this [image_Introduction_to_Linear_Algebra_md_to_png](./Introduction_to_Linear_Algebra_md_to_png.png)
+If you can not render Mathematical formula, please read this [Introduction_to_Linear_Algebra.pdf](./Introduction_to_Linear_Algebra.pdf)
 
 ## 目录
-+ [向量](#vctors)
++ [向量](#vectors)
 + [矩阵](#matrices)
 
 ## Vectors

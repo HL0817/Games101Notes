@@ -1,7 +1,7 @@
 # Viewing transformation
 *闫令琪博士将视图变换和投影变换合在一起，统称为观测变换*
 
-If you can not render Mathematical formula, please read this [image_Viewing_transformation_md_to_png](./Viewing_transformation_md_to_png.png)
+If you can not render Mathematical formula, please read this [Viewing_transformation.pdf](./Viewing_transformation.pdf)
 
 ## 目录
 + [View transformation](#view-transformation)
