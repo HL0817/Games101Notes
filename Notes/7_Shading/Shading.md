@@ -15,6 +15,7 @@ If you can not render Mathematical formula, please read this [Shading.pdf](./Sha
 以下图为例，将光线分为不同类型：
 
 ![lighting_type_example](./images/lighting_type_example.png)
+
 + Specular highlights，镜面反射高光（也被称为镜面光），可以观察图中比较亮的高光部分，这里接收到的光线经过镜面反射，将光线射入摄像机，这种光被称为镜面光
 + Diffuse reflection，漫反射光，物体除高光外，整体表现出一个变化不明显的颜色，这是光线在物体表面发生漫反射，只有一定类型的光辉射入摄像机，这些光线被叫做漫反射光
 + Ambient lighting，环境光，图中杯子的最左侧，可以看到没有光照直射，但是仍然可以看见光，因为这是光线多次反射折射所形成的光，它的来源很复杂，我们把它简化为一种光，叫环境光，一般是被设置为常量
@@ -41,12 +42,13 @@ If you can not render Mathematical formula, please read this [Shading.pdf](./Sha
 
 但是漫反射实际接收到的光要受到两个条件的约束——入射角度和光源距离
 + **光线的入射角度影响物体接收到光的大小，可以使用 $\cos\theta = \mathbf{n} \cdot \mathbf{l}$ 来表示**
-    Lambert's cosine law（Lambert余弦定理）：以不同角度接收到的相同强度的光，所获得的光线数量（光能）不一样，
+    Lambert's cosine law（Lambert余弦定理）：以不同角度接收到的相同强度的光，所获得的光线数量（光能）不一样
     + 假设光是离散的，在垂直入射到shading point的数量是6
     + 光照不变，仅仅是将shadingpoint旋转60度，此时入射光线只有3，接收到的光减少了，物体表面就会暗一些
     + 我们推广可得，物体接收到的光的大小和光线方向与法向的夹角负相关，和 $\cos\theta = n \cdot l$ 正相关
 
     ![light_direction_in_diffuse](./images/light_direction_in_diffuse.png)
+
 + **光源的距离影响物体接收到光的大小，可以使用 $I/r^2$ 来表示**
     光的能量会随距离增加而衰减：距离越远，单位面积内接收到的光能越小
     + 假设点光源向外辐射的光能是离散的，下图是不同时刻光能在不同位置的可视化
@@ -65,6 +67,7 @@ If you can not render Mathematical formula, please read this [Shading.pdf](./Sha
 + $max((0, \mathbf{n} \cdot \mathbf{l})$，这里约束为非负数，因为 $\mathbf{n} \cdot \mathbf{l}$ 的结果为负表示光从下方射过来，这样对这个着色点完全没有贡献（不考虑折射）
 
 ![diffuse_coefficient](./images/diffuse_coefficient.png)
+
 这里就展示了，光照不变的情况下，漫反射系数越大那么物体就越亮
 
 ### 镜面反射光
@@ -76,8 +79,9 @@ If you can not render Mathematical formula, please read this [Shading.pdf](./Sha
 + 半程向量与法向越接近，表示镜面反射方向与观察方向越接近
 
 ![half_vector_near_normal](./images/half_vector_near_normal.png)
+
 + 镜面反射方向比较难求，但是半程向量非常好计算
-+ 半程向量公式：$h = bisector(\mathbf{v}, \mathbf{l}) = \frac {\mathbf{v + l}} {||\mathbf{v + l}||}$
++ 半程向量公式：$\mathbf{h} = bisector(\mathbf{v}, \mathbf{l}) = \frac {\mathbf{v + l}} {||\mathbf{v + l}||}$
 
 给出镜面反射的着色公式：
 $$\LARGE\begin{split}
@@ -113,6 +117,7 @@ L &= L_a + L_d + L_s \\
 作用于模型的结果如下：
 
 ![blinn_phong_lighting_model](./images/blinn_phong_lighting_model.png)
+
 + 环境光，给模型所有位置均匀的光照
 + 漫反射光，光线照射到模型的方向与模型法线，夹角越小的地方，光照越强
 + 镜面反射光，观察方向和光线的镜面反射方向接近的地方，模型会产生高光
@@ -122,20 +127,24 @@ L &= L_a + L_d + L_s \\
 展示同一个球模型在三种不同着色频率的着色结果：
 
 ![three_shading_frequencies_example](./images/three_shading_frequencies_example.png)
+
 + 面着色(Flat shading)，以模型的三角面为最小单位，计算光照，给面的所有像素设置相同的颜色
 
     ![flat_shading](./images/flat_shading.png)
+    
     + 三角形可以求取面法线，作为光照模型的中shading point的法向
     + 这个着色在平滑曲面的表现很不好
 + 顶点着色(Gouraud shading)，以模型的顶点为单位，计算每个顶点的光照，然后使用顶点颜色给三角形内的像素插值
     
     ![gouraud_shading](./images/gouraud_shading.png)
+
     + 三角形各个点的颜色由顶点插值得到
     + 这个点所在的几个面的法线做平均来求取顶点的法线
     + 这个着色对高光描述得不是很好
 + 像素着色(Phong shading)，以像素为单位，计算每个像素的光照
     
-    ![flat_shading](./images/flat_shading.png)
+    ![phong_shading](./images/phong_shading.png)
+
     + 三角形每个像素的法线由三角形的顶点插值获得
     + 着色是计算每个像素的颜色值
 
@@ -168,6 +177,7 @@ L &= L_a + L_d + L_s \\
     这个阶段，主要是把我们输入的顶点进行MVP变换，得到屏幕空间的顶点表示，方便后续处理
     
     ![vertex_processing_state](./images/vertex_processing_state.png)
+
 + Triangle Processing
     按照一定顺序，将顶点组成不同的三角形
     了解图形API的对这一步应该都有印象，indexbuffer的顺序就定义了如何组成三角形
@@ -175,16 +185,20 @@ L &= L_a + L_d + L_s \\
     对每个像素进行采样，判断像素在不在三角形内
     
     ![rasterization_state](./images/rasterization_state.png)
+
 + Fragment Processing
     + 判定每个像素位置哪些物体可见，使用Z-Buffer做深度测试
 
         ![fragment_processing_state_1](./images/fragment_processing_state_1.png)
+
     + 计算shading point（根据不同的着色频率决定不同粒度的shading point）的颜色，并着色
 
         ![fragment_processing_state_2](./images/fragment_processing_state_2.png)
+
     + 这个阶段也会做纹理映射，简单说就是把贴图（颜色、法线等等）给映射到物体的不同位置上，后面会详细说明这一部分
 
         ![fragment_processing_state_3](./images/fragment_processing_state_3.png)
+
     + 着色并不只是发生在这个阶段，还是拿图形学API做例子，我们也可以在 VS 阶段对顶点进行颜色修改，这也算是着色的一种
 + Framebuffer Operations
     根据像素大小，最终生成一个用于显示的Framebuffer
@@ -194,6 +208,7 @@ L &= L_a + L_d + L_s \\
 ### 重心坐标
 
 ![barycentric_coordinates](./images/barycentric_coordinates.png)
+
 + 三角形平面上任意一点，都可以由三角形三个点线性组合而成
 + 线性组合系数加起来要等于1
 + 如果点在三角形内，那么三个点的属性都要是非负的
@@ -273,6 +288,7 @@ $$\LARGE \begin{split}
 我们将模型的每一个顶点都映射到纹理上，使用一个叫纹理坐标的坐标系进行表示
 
 ![texture_coordinate](./images/texture_coordinate.png)
+
 + 通常使用 `(u, v)` 来表示纹理坐标系
 + `u, v` 值的范围默认为 $[0, 1]$
 
@@ -309,10 +325,12 @@ texcolor(x, y) = textur.sample(u, v);
     如下图选取的浅红色纹素
 
     ![bilinear_interpolation_1](./images/bilinear_interpolation_1.png)
+
 + 我们计算出离红色点最远的纹素，距离红色点的水平距离和竖直距离
     水平和竖直距离我们使用 $(s, t)$ 表示
 
     ![bilinear_interpolation_2](./images/bilinear_interpolation_2.png)
+
 + 我们定义线性插值（Linear Interpolation）
     + $lerp(x, v_0, v_1) = v_0 + x(v_1 - v_0)$
     + 直白的说，据说按照比例 $x$ 去 $v_0, v_1$ 线性的取对应的点
@@ -321,6 +339,7 @@ texcolor(x, y) = textur.sample(u, v);
     + $u_1 = lerp(s, u_{01}, u_{11})$
 
     ![bilinear_interpolation_3](./images/bilinear_interpolation_3.png)
+
 + 我们最后对 $u_0, u_1$ 做竖直的插值，就得到了红色点处的纹素的值
     + $f(x, y) = lerp(t, u_0, u_1)$
 
