@@ -5,7 +5,7 @@
     + [视频链接（BIlibili）](https://www.bilibili.com/video/BV1X7411F744?from=search&seid=15862813116742549159)
 + 本文使用数学渲染库：[KaTeK](https://katex.org/)
     + [Supports](https://katex.org/docs/supported.html)
-    + 所有涉及数学公式的章节，都有对应的数学公式渲染后图片版内容，无法渲染数学公式时请阅读图片版内容，章节名_md_to_png.png
+    + 所有涉及数学公式的章节，都有对应的数学公式渲染后PDF版内容，无法渲染数学公式时请阅读PDF版内容——【章节名.pdf】
 + 笔记索引
     + [Introduction to Computer Graphics](./Notes/1_introduction/Introduction_to_Computer_Graphics.md)
     + [向量和线性代数](./Notes/2_向量和线性代数/Introduction_to_Linear_Algebra.md)
@@ -14,6 +14,7 @@
     + [Rasterization](./Notes/5_Rasterization/Rasterization.md)
     + [Antialiasing and Visibility](./Notes/6_Antialiasing_and_Visibility/Antialiasing_and_Visibility.md)
     + [Shading](./Notes/7_8_9_Shading/Shading.md)
+    + [Geometry](./Notes/10_11_12_Geometry/Geometry.md)
 ****
 他人[笔记](https://blog.csdn.net/qq_38065509)，作参考
 
