@@ -7,7 +7,7 @@
 + 几何处理
 
 ## 几何的表达方式
-### 隐式表示和隐式表示
+### 隐式表示和显式表示
 + Implicit representation of geometry，几何的隐式表示，指将几何体表面的点归纳到特定的关系中
     换句话说，就是用几何表面的点满足的函数来表示这个几何体
 
@@ -129,3 +129,93 @@
 + 便于处理几何体拓扑结构（topology）的变化
 ##### 缺点
 + 难以描述复杂几何体的形状
+
+### 图形学中的显式表示
+列举图形学中常见的显式表示几何体的方式
+#### Point Cloud
+点云，Point Cloud，不把物体表示为几何体，而是点的集合，由点占据空间中的位置来组合成不同的几何体形状
+
+![point_cloud_example](./images/point_cloud_example.png)
+
+点云非常容易表示各种几何体，因为我们已知点云所有点的空间位置
+
+点云表示几何体所用到的数据量非常大，跟其他表示方式差了好几个数量级
+
+#### Polygon Mesh
+多边形面，Polygon Mesh，用多边形（常用三角形和四边形）去描述几何体的表面，并将多边形或者他们的顶点记录下来
+
+![polygon_mesh_example](./images/polygon_mesh_example.png)
+
++ Mesh（特别是Triangle Mesh）是图形学中使用最多最广泛的几何表示方法
++ 非常利于对几何体做处理、模拟、自适应采样（adaptive sampling）等等
++ 多边形的连接关系比较复杂，这一块的研究相对多一些
+
+简单介绍一下The Wavefront Object文件（.obj文件）的格式
+
+![the_wavefront_object_file_format](./images/the_wavefront_object_file_format.png)
+
++ `v`：模型所用到的顶点的坐标
++ `vt`：模型表面的纹理坐标
++ `vn`：模型每个面的法线
++ `f`：模型每个三角形的连接关系
+
+## 曲线
+曲线，Curves，也是显式表示的一种，但我们单独将它拿出来进行了解和学习
+
+### 贝塞尔曲线
+
+#### 用切线定义贝塞尔曲线
+我们可以使用4个控制点 $p_0, p_1, p_2, p_3$ 定义出唯一一条曲线，这条曲线被称为贝塞尔曲线（Bézier Curve）
+
+![bezier_curve_defination_example](./images/bezier_curve_defination_example.png)
+
+贝塞尔曲线需要满足以下几个性质：
++ 贝塞尔曲线必须从点 $p_0$ 开始，并且从点 $p_3$ 结束
++ 贝塞尔曲线在点 $p_0$ 的切线 $\mathbf{t_0}$ 必须满足 $\mathbf{t_0} = 3(p_1 - p_0)$
++ 贝塞尔曲线在点 $p_3$ 的切线 $\mathbf{t_0}$ 必须满足 $\mathbf{t_1} = 3(p_3 - p_2)$
++ 有唯一一条复合以上要求的贝塞尔曲线
+
+#### 计算贝塞尔曲线
+我们学习 de Casteljau Algorithm 来理解贝塞尔曲线的生成过程
+
+如何画出贝塞尔曲线，首先我们考虑只有3个点的情况（最简情况是3个控制点，如果更少的点就不能表示曲线了），即4个控制点其中两个重合（这种曲线被称为三次贝塞尔曲线）
+
+我们有 $b_0, b_1, b_2$ 三个控制点
+
+![de_Casteljau_algorithm_step_0](./images/de_Casteljau_algorithm_step_0.png)
+
+假设贝塞尔曲线从 $b_0$ 出发，到 $b_2$ 结束，整个耗时为1，我们要求取贝塞尔曲线就是求时间 $t$ 时，贝塞尔曲线上对应点 $t$ 的位置
+
+![de_Casteljau_algorithm_step_1](./images/de_Casteljau_algorithm_step_1.png)
+
+我们在 $b_0b_1$ 线段上按照时间 $t$ 做线性插值，得到 $t$ 时刻时的点 $b_0^1$
+
+![de_Casteljau_algorithm_step_2](./images/de_Casteljau_algorithm_step_2.png)
+
+按照同样的方法，我们插值得到 $t$ 时刻在线段 $b_1b_2$ 上的点 $b_1^1$
+
+![de_Casteljau_algorithm_step_3](./images/de_Casteljau_algorithm_step_3.png)
+
+在线段 $b_0^1b_1^1$ 上做第三次时刻 $t$ 的插值，得到点 $b_0^2$
+
+![de_Casteljau_algorithm_step_4](./images/de_Casteljau_algorithm_step_4.png)
+
+我们认为点 $b_0^2$ 就是贝塞尔曲线在时刻 $t$ 时的位置
+
+![de_Casteljau_algorithm_step_5](./images/de_Casteljau_algorithm_step_5.png)
+
+现在我们使用上述的方式将整个计算流程推广到4个控制点（$b_0, b_1, b_2, b_3$）的贝塞尔曲线
+
+![de_Casteljau_algorithm_step_normal](./images/de_Casteljau_algorithm_step_normal.png)
+
++ 使用三个点带入 de Casteljau Algorithm 可以得到时刻 $t$ 时的确定点
+    + 将 $b_0, b_1, b_2$ 带入算法可以得到确定点 $b_0^2$
+    + 将 $b_1, b_2, b_3$ 带入算法可以得到确定点 $b_1^2$
++ 在线段 $b_0^2b_1^2$ 上再做一次时刻 $t$ 的插值，得到点 $b_0^3$
++ 我们认为点 $b_0^3$ 就是贝塞尔曲线在时刻 $t$ 时的位置
+
+总结起来，贝塞尔曲线计算就是递归的对不同的线段做线性插值
+
+![de_Casteljau_algorithm_normal_example](./images/de_Casteljau_algorithm_normal_example.png)
+
+#### 贝塞尔曲线的计算式
