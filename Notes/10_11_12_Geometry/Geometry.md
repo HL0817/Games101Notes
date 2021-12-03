@@ -175,7 +175,17 @@
 + 贝塞尔曲线在点 $p_3$ 的切线 $\mathbf{t_0}$ 必须满足 $\mathbf{t_1} = 3(p_3 - p_2)$
 + 有唯一一条复合以上要求的贝塞尔曲线
 
-#### 计算贝塞尔曲线
+#### 贝塞尔曲线的性质
++ $b(0) = b_0;b(1) = b_3$，这对应我们规定的贝塞尔曲线的起点和终点
++ 4个控制点的贝塞尔曲线满足：$b'(0) = 3(b_1 - b_0);b'(1) = 3(b_3 - b_2)$
++ 对整个贝塞尔曲线做仿射变换，可以转换成对控制点做对应变换（好性质）
++ 曲线一定在控制点所形成的凸包内（凸包性质）
+
+凸包，能够包围给定的几个点的最小的凸多边形，如下图：
+![convex_hull](./images/convex_hull.png)
+
+### de Casteljau Algorithm
+#### 贝塞尔曲线计算过程
 我们学习 de Casteljau Algorithm 来理解贝塞尔曲线的生成过程
 
 如何画出贝塞尔曲线，首先我们考虑只有3个点的情况（最简情况是3个控制点，如果更少的点就不能表示曲线了），即4个控制点其中两个重合（这种曲线被称为三次贝塞尔曲线）
@@ -218,4 +228,42 @@
 
 ![de_Casteljau_algorithm_normal_example](./images/de_Casteljau_algorithm_normal_example.png)
 
-#### 贝塞尔曲线的计算式
+#### 贝塞尔曲线的计算公式
+我们已经了解了贝塞尔曲线的计算过程，计算核心就是，我们根据贝塞尔曲线的的4个控制点，算出某一时刻的贝塞尔曲线上对应的某个点
+，简化出来的就是下图中的过程
+
+![process_of_bezier_curve_calculate](./images/process_of_bezier_curve_calculate.png)
+
+对 n 个输入点进行相邻的两两插值，得到 n-1 个输出点
+
+我们将控制点带入这个计算逻辑进行递归计算，最终得到一个唯一的点，这就是求得的贝塞尔曲线上对应时刻的唯一点
+
+还是从三次贝塞尔曲线开始，我们写出整个过程的计算公式：
+
+![de_Casteljau_algorithm_step_5](./images/de_Casteljau_algorithm_step_5.png)
+
+首先还是分别对线段 $b_0b_1$ 和 $b_1b_2$ 做 $t$ 时刻的插值得到 $b_0^1$ 和 $b_1^1$ ，我们写出关于 $t$ 的关系式：
+$b_0^1(t) = (1 - t)b_0 + tb_1 \\ b_1^1(t) = (1 - t)b_1 + tb_2$
+
+我们再对 $b_0^1$ 和 $b_1^1$ 做 $t$ 时刻的插值得到 $b_0^2(t) = (1 - t)b_0^1 + tb_1^1$
+
+将 $b_0^1$ 和 $b_1^1$ 带入
+$b_0^2(t) = (1 - t)^2b_0 + 2t(1 - t)b_1 + t^2b_2$
+
+这是控制点为3时，贝塞尔曲线的关系式，我们推广到任意多个控制点
+
+$$\LARGE b^n(t) = b_0^n(t) = \displaystyle \sum_{j = 0}^nb_jB_j^n(t)$$
++ 给定 $0 到 n$ 一共 $n+1$ 个控制点
++ $b_j$ 表示第 $j$ 个控制点
++ $B_j^n(t)$ 是每个控制点的系数的伯恩斯坦多项式
+    伯恩斯坦多项式（Bernstein polynomial，是描述二项分布的多项式），其展开式为 $B_i^n(t) = \begin{pmatrix} n \\ i \end{pmatrix}t^i(1 - t)^{n - i}$
+
+    ![bernstein_polynomial](./images/bernstein_polynomial.png)
+
+这里我们给出4个控制点的贝塞尔曲线的计算式：
+$$\LARGE b^n(t) = b_0(1 - t)^3 + b_13t(1 - t)^2 + b_23t^2(1 - t) + b_3t^3$$
+
+
+### 分段贝塞尔曲线
+
+### Spline
