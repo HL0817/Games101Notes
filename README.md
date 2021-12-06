@@ -62,3 +62,5 @@ $
 
 不等于：
 > $M \not = P$
+
+$f:\R^2 \rarr \R^3 \Rightarrow (u, v) \rarr (x, y, z)$
