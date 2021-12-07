@@ -316,4 +316,42 @@ B-splines，就是一种样条，它有这样的一些特点：
 我们已经了解的贝塞尔曲线的定义，以及它的表示过程，但在实际生产中，我们处理模型更多的是对曲面的处理，因此本节将贝塞尔曲线扩展到曲面上
 
 ![bezier_surfaces_example](./images/bezier_surfaces_example.png)
-### 曲面细分
+
+#### 三次贝塞尔曲面
+我们从三次贝塞尔曲线过度到三次贝塞尔曲面，有点类似于升了一个维度，从线升到了面
+
+![bicubic_bezier_surface_example](./images/bicubic_bezier_surface_example.png)
+
+相对应的，三次贝塞尔曲面会有 $4 \times 4$ 个网格排布的控制点，从水平和竖直方向去描述一个面弯曲情况
+
+我们任意取水平或竖直的一条曲线来看，刚好能得出复合4个控制点的贝塞尔曲线
+
+![curve_in_bicubic_bezier_surface](./images/curve_in_bicubic_bezier_surface.png)
+
+#### 贝塞尔曲面的计算过程
+计算过程也是从三次贝塞尔曲线推广出来的，对于三次贝塞尔曲面而言：
++ $4 \times 4$ 个网格状的控制点作为输入
++ 在水平和竖直方向各取一个时刻 $u$ 和 $v$，经过 de Casteljau Algorithm 的插值计算
++ 在 $(u, v)$ 时刻，我们会得到曲面上唯一一个对应点的坐标
+
+![evaluating_bicubic_bezier_surface](./images/evaluating_bicubic_bezier_surface.png)
+
+我们来理解一下第二步：水平和竖直方向各取一个时刻 $u$ 和 $v$，做 de Casteljau Algorithm 的插值计算
++ 我们先从竖直方向将控制点分为4组，这样每组4个控制点可以形成各自的贝塞尔曲线（如下图灰色曲线）
++ 对每条灰色贝塞尔曲线做时刻 $u$ 的插值，得到4个蓝色点
++ 将4个点作为新的贝塞尔曲线，我们再做一次时刻 $v$ 的插值，得到唯一的黑色点
++ 将黑色点记录到对应的 $(u, v)$ 上，这就是曲面当前位置的唯一点
+
+![de_Casteljau_algorithm_in_bezier_surface](./images/de_Casteljau_algorithm_in_bezier_surface.png)
+
+整个插值步骤像这样
+
+![process_of_bezier_surface_interpolation](./images/process_of_bezier_surface_interpolation.png)
+
+## 几何处理
+网格，Mesh，才是我们最常使用的描述几何体的方法，我们接下来学习Mesh的处理
++ 网格细分，Mesh subdivision
++ 网格简化，Mesh simplification
++ 网格正则化（规则化），Mesh regularization
+
+![mesh_processing_example](./images/mesh_processing_example.png)
