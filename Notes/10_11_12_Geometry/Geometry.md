@@ -426,6 +426,33 @@ Catmull-Clark Subdivision 更多的是将非三角形网格进行细分，把不
 ![multi_catmull_clark_subdivision_results](./images/multi_catmull_clark_subdivision_results.png)
 
 看一下 Catmull-Clark Subdivision 的顶点是如何调整位置
++ Face point，给每个面插入的顶点
+    + 算取面的 4 个顶点的平均值作为 Face point 的坐标（第一次细分就去除掉了所有的非四边形面，这里考虑最常见的四边形面）
+    + $\LARGE f = \frac {v_1 + v_2 + v_3 + v_4} {4}$
+
+    ![face_point_update_rule](./images/face_point_update_rule.png)
+
++ Edge point，给每条边插入的顶点
+    + 取与 Edge point 共线的两个顶点和共线的两个面的 Face point，算平均值作为 Edge point 的坐标
+    + $\LARGE e = \frac {v_1 + v_2 + f_1 + f_2} {4}$
+
+    ![edge_point_update_rule](./images/edge_point_update_rule.png)
+
++ Vertex point，原有的 Mesh 顶点 $p$ 的新坐标
+    + 取 Vertex point 相邻 4 条边的 Edge point 、相邻 4 个面的 Face point 、Vertex point 自身，按照一定权重计算出新的位置
+    + $\LARGE e = \frac {f_1 + f_2 + f_3 + f_4 + 2(m_1 + m_2 + m_3 + m_4) + 4p} {16}$
+    + 权重从高到底依次是：原有点 $p$ 、离得近的Edge point 、离得最远的 Face point ，比较符合我们对几何面的认知
+
+    ![vertex_point_update_rule](./images/vertex_point_update_rule.png)
+
+Loop Subdivision 只能处理三角形面的 Mesh 细分，而 Catmull-Clark Subdivision 可以做任何面的细分，展示一下他们的对比结果：
++ Loop Subdivision with Sharp Creases
+
+![loop_with_sharp_creases](./images/loop_with_sharp_creases.png)
+
++ Catmull-Clark Subdivision with Sharp Creases
+
+![catmull_clark_with_sharp_creases](./images/catmull_clark_with_sharp_creases.png)
 
 ### Mesh Simplification
 网格简化，是一种减少三角形面数的手段，为Mesh删掉一些不重要或者我们不关注的细节信息
