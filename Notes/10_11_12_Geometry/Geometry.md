@@ -265,7 +265,7 @@ $$\LARGE b^n(t) = b_0(1 - t)^3 + b_13t(1 - t)^2 + b_23t^2(1 - t) + b_3t^3$$
 
 
 ### 分段贝塞尔曲线
-![multy_points_bezier_curve](./images/multy_points_bezier_curve.png)
+![multi_points_bezier_curve](./images/multi_points_bezier_curve.png)
 
 像图中这样，假如我们有从 0 到 10，一共 11 个控制点的一条贝塞尔曲线，你会发现它几乎是沿着控制点覆盖区域的中间进行分布的，我们很难去让贝塞尔曲线描述出控制点这样蜿蜒曲折的走向
 
@@ -355,3 +355,84 @@ B-splines，就是一种样条，它有这样的一些特点：
 + 网格正则化（规则化），Mesh regularization
 
 ![mesh_processing_example](./images/mesh_processing_example.png)
+
+### Mesh Subdivision
+网格细分，是一种增加三角形面数的手段，为Mesh增加更多的细节信息
+
+![mesh_subdivision_example](./images/mesh_subdivision_example.png)
+
+#### Loop Subdivision
+Loop细分(发明这种细分方法的老哥叫 Loop，不是循环细分的意思)，思路如下：
++ 将每个三角形细分成 4 个小三角形
+
+![split_each_triangle_into_four](./images/split_each_triangle_into_four.png)
+
++ 通过不同的权重计算方法计算出新旧顶点的位置，让 Mesh 更加光滑
+
+![assign_vertex_position](./images/assign_vertex_position.png)
+
+思考一下如何调整新顶点的位置
+总体思路是，按照一定权重值按比例取新生成顶点周围的旧顶点的位置，计算出新顶点的位置
+
+![update_new_vertex_position](./images/update_new_vertex_position.png)
+
++ 一般情况下，新的顶点在两个三角形公共的线段上，我们假设：
+    + 共线的两个顶点为 $A, B$
+    + 不同线的两个顶点为 $C, D$
++ 约定共线的顶点的权重大于不共线顶点的权限
+    按照 $P = 3/8 * (A + B) + 1/8 * (C + D)$ 进行位置计算
+
+现在考虑如何调整旧顶点的位置
+设定旧顶点本身和旧顶点周围其他相邻旧顶点的权重，计算出这个旧顶点的新位置
+
+![update_old_vertex_position](./images/update_old_vertex_position.png)
+
++ 旧顶点只接受来自自身和相邻旧顶点的贡献，不相邻的旧顶点无贡献，新顶点也不做贡献（我觉得应该是为了保证几何信息不过多改变）
++ 旧顶点自身的权重受该点的度 $n$ 的影响
+    + 顶点的度（vertex degree），顶点连接的边的数量（图论里面的概念）
++ 设定一个跟度有关的一个数 $u$ ，用来给顶点自身和相邻顶点加权，保证他们的和仍然为1
+    + $u = \begin{cases} 3/16 &\text{if } n = 3 \\ 3/(8n) &\text{if } n \not= 3\end{cases}$
+    + 顶点的度最小为3
++ 按照 $P = (1 - n * u) * original_pos + u * neighbor_pos_sum$
+    + 这个公式的意义是，顶点的相邻顶点数量越多，则顶点本身的贡献越小（挺有道理的，除了特殊情况，比较符合事实）
+
+让我们看一下Loop细分的结果：
+
+![loop_subdivision_results](./images/loop_subdivision_results.png)
+
+#### Catmull-Clark Subdivision
+Catmull-Clark Subdivision 更多的是将非三角形网格进行细分，把不规则网格细分成三角形网格，如果有必要可以使用Loop细分对它进一步细分
+
+首先对网格数据做一些预先的定义：
+
+![temp_defination_of_catmull_clark_subdivision](./images/temp_defination_of_catmull_clark_subdivision.png)
+
++ Non-quad face，非四边形面，如上图中的橙色三角形所在的三角形面
++ Extraordinary，奇异点，所有度不为 4 的顶点，如上图中紫红色的顶点
+
+现在开始做细分：
++ 为每个面增加一个顶点
++ 为每条边增加一个中点作为顶点
++ 每个面增加的点去连接周围边增加的中点
+
+![temp_catmull_clark_subdivision_connect_all_new_vertices](./images/temp_catmull_clark_subdivision_connect_all_new_vertices.png)
+
+我们来看一下一次细分之后的结果：
++ 非四边形面已经全部细分为了四边形面
++ 奇异点的数量增加，增加的数量等于非四边形面减少的数量
++ 增加的奇异点的度，恰好是对应的非四边形面的边的数量
+
+随着不停的细分，结果会变得越来越光滑
+![multi_catmull_clark_subdivision_results](./images/multi_catmull_clark_subdivision_results.png)
+
+看一下 Catmull-Clark Subdivision 的顶点是如何调整位置
+
+### Mesh Simplification
+网格简化，是一种减少三角形面数的手段，为Mesh删掉一些不重要或者我们不关注的细节信息
+
+![mesh_simplification_example](./images/mesh_simplification_example.png)
+
+### Mesh Regullarization
+网格正则化，是一种改变三角形质量的手段，主要是规范化每个三角形，让三角形整体大小差不多，形状近似正三角形
+
+![mesh_regullarization_example](./images/mesh_subdivision_example.png)
