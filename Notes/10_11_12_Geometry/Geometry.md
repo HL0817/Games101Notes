@@ -459,7 +459,44 @@ Loop Subdivision 只能处理三角形面的 Mesh 细分，而 Catmull-Clark Sub
 
 ![mesh_simplification_example](./images/mesh_simplification_example.png)
 
+简化的核心问题就是，如何在减少顶点数量的同时尽量保留 Mesh 的几何信息（或者基本几何信息）
+
+![mesh_simplification_core_problems](./images/mesh_simplification_core_problems.png)
+
+还有一个考虑点，当模型很小（离相机很远）的时候，三角形面数减小，我们几乎察觉不出差异（LOD 的思想）
+
+#### Edge Collaping
+边坍缩，Edge collapsing，是网格简化的其中一种方法，简单的说就是将相邻两个顶点合并，他们之间的边发生坍缩
+
+![edge_collasping_example](./images/edge_collasping_example.png)
+
+边坍缩的难点是如何选择边进行坍缩？缩得到的新顶点的位置如何确定？我们的选择依据是什么？
+
+这里我们使用二次误差度量（Quadric Error Metrics）来对每条边做处理，最终选择一些点进行坍缩
+
+#### Quadric Error Metrics
+找到一个顶点位置，满足该顶点到被坍缩的边所在直线的垂直距离的平方和最小，点到直线垂直距离的平方和被称为二次度量误差
+
+也就是说我们坍缩边之后的新顶点的二次度量误差最小，这个顶点就是边坍缩的结果（我们没有直接计算位置，而是寻找最优解的一个过程）
+
+![compare_average_with_error_quadric](./images/compare_average_with_error_quadric.png)
+
++ 左图使用简单的求平均来处理五个点得到了新的的顶点位置，但是这样的简化导致了原本比较凸的形状变得扁平，流失了太多几何细节
++ 右图，使用二次误差度量算出的顶点，简化后的结果就要好很多
+
+现在将二次误差放到整个模型的边坍缩过程里面来：
++ 给每一条边算二次误差并记录
++ 选择最小二次误差的边进行坍缩
+    + 这个时候会有一个问题，我们坍缩完一条边之后，几何结构变化了，二次误差也会跟着变化
+    + 我们需要在取最小二次误差之后，重新更新其他边的二次误差
+    + 我们首相想到使用优先队列或者堆来存储每条边的二次误差，并在边坍缩后及时的更新
++ 我们每次坍缩边使用的是当前的最小二次误差，很有可能这并不是全局的最优解
+    + 贪心的思想，像使用局部最优解来表示全局最优解
+    + 在非极端情况下，这种思路的效果还是非常好的
+
+![quadric_error_mesh_simplification](./images/quadric_error_mesh_simplification.png)
+
 ### Mesh Regullarization
 网格正则化，是一种改变三角形质量的手段，主要是规范化每个三角形，让三角形整体大小差不多，形状近似正三角形
 
-![mesh_regullarization_example](./images/mesh_subdivision_example.png)
+![mesh_regullarization_example](./images/mesh_regullarization_example.png)
