@@ -1,10 +1,23 @@
 # Geometry
 
 ## 目录
-+ 几何的表达方式
-+ 曲线
-+ 曲面
-+ 几何处理
++ [几何的表达方式](#几何的表达方式)
+    + [隐式表示和显式表示](#隐式表示和显式表示)
+    + [隐式表示和显式表示的差异](#隐式表示和显式表示的差异)
+    + [图形学中的隐式表示](#图形学中的隐式表示)
+    + [图形学中的显式表示](#图形学中的显式表示)
++ [曲线](#曲线)
+    + [贝塞尔曲线](#贝塞尔曲线)
+    + [de Casteljau Algorithm](#de-casteljau-algorithm)
+    + [分段贝塞尔曲线](#分段贝塞尔曲线)
+    + [Spline](#spline)
++ [曲面](#曲面)
+    + [三次贝塞尔曲面](#三次贝塞尔曲面)
+    + [贝塞尔曲面的计算过程](#贝塞尔曲面的计算过程)
++ [几何处理](#几何处理)
+    + [Mesh Subdivision](#mesh-subdivision)
+    + [Mesh Simplification](#mesh-simplification)
+    + [Mesh Regularization](#mesh-regularization)
 
 ## 几何的表达方式
 ### 隐式表示和显式表示
@@ -312,12 +325,11 @@ B-splines，就是一种样条，它有这样的一些特点：
 ## 曲面
 与曲线相对应的就是曲面（Surfaces），本节主要讨论曲面相关的内容
 
-### 贝塞尔曲面
 我们已经了解的贝塞尔曲线的定义，以及它的表示过程，但在实际生产中，我们处理模型更多的是对曲面的处理，因此本节将贝塞尔曲线扩展到曲面上
 
 ![bezier_surfaces_example](./images/bezier_surfaces_example.png)
 
-#### 三次贝塞尔曲面
+### 三次贝塞尔曲面
 我们从三次贝塞尔曲线过度到三次贝塞尔曲面，有点类似于升了一个维度，从线升到了面
 
 ![bicubic_bezier_surface_example](./images/bicubic_bezier_surface_example.png)
@@ -328,7 +340,7 @@ B-splines，就是一种样条，它有这样的一些特点：
 
 ![curve_in_bicubic_bezier_surface](./images/curve_in_bicubic_bezier_surface.png)
 
-#### 贝塞尔曲面的计算过程
+### 贝塞尔曲面的计算过程
 计算过程也是从三次贝塞尔曲线推广出来的，对于三次贝塞尔曲面而言：
 + $4 \times 4$ 个网格状的控制点作为输入
 + 在水平和竖直方向各取一个时刻 $u$ 和 $v$，经过 de Casteljau Algorithm 的插值计算
@@ -496,7 +508,7 @@ Loop Subdivision 只能处理三角形面的 Mesh 细分，而 Catmull-Clark Sub
 
 ![quadric_error_mesh_simplification](./images/quadric_error_mesh_simplification.png)
 
-### Mesh Regullarization
+### Mesh Regularization
 网格正则化，是一种改变三角形质量的手段，主要是规范化每个三角形，让三角形整体大小差不多，形状近似正三角形
 
 ![mesh_regullarization_example](./images/mesh_regullarization_example.png)
