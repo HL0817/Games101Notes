@@ -81,4 +81,30 @@ $\mathbf{p} : f(\mathbf{o} + t\mathbf{d}) = 0$
 我们仍然取**正实数解（t 要大于0，且 t 不为虚数）**，作为最后求交的结果
 
 #### 光线和Mesh求交
-我们最关注的是肯定是对Mesh做求交
+我们最关注的是肯定是对Mesh做求交，有这几个作用：
++ 可以用交点做一些渲染工作，例如可见性（遮挡）判断，阴影判断，光线的作用
++ 可以用来判断光源在mesh内还是外
+
+最直接的求交的方法就是使用光线和 Mesh 的每一个三角形面求交
++ 想法很简单，但是很慢（resolution * Mesh triangle counts）
++ 对于每一个三角形面，我们只考虑光线与它有 0 或 1 个交点，即相交或不想交（为了简化，不考虑共面相交的情况）
+
+如何做光线和三角形面求交？我们可以近一步分解问题，将三角形认为是一个平面，那么就可以得到求交的步骤：
++ 光线和平面求交
++ 判断交点在三角形内还是在三角形外
+
+我们对平面做定义：
+只用平面上的一个点和平面的法线就可以定义一个平面：平面上任意一点 $\mathbf{p}$ 与给定点 $\mathbf{p'}$ 的连线如果和法线 $\mathbf{N}$ 垂直，那么任意点 $\mathbf{p}$ 就在平面上
+Plane Equation：
+$$\LARGE \mathbf{p}:(\mathbf{p - p'}) \cdot \mathbf{N}$$
++ $\mathbf{p}$，平面上任意一点
++ $\mathbf{p'}$，平面方程的已知点
++ $\mathbf{N}$，面法线
+
+和前面隐式表示求交的思路一致，光线和平面求交：
+Ray equation：$\begin{matrix}\mathbf{r}(t) = \mathbf{o} + t\mathbf{d},0 \eqslantless t < \infty \end{matrix}$
+Plane equation：$\mathbf{p}:(\mathbf{p - p'}) \cdot \mathbf{N}$
+将 $\mathbf{r}(t)$ 带入平面方程中可得 $(\mathbf{p - p'}) \cdot \mathbf{N} = (\mathbf{o} + t\mathbf{d} - \mathbf{p'}) \cdot \mathbf{N} = 0$
+解出 $\Large t = \frac {\mathbf{(p' - o) \cdot N}} {\mathbf{d \cdot N}}$ ，最后用 $0 \eqslantless t < \infty$ 约束结果即可
+
+求交过程可以使用 Möller Trumbore Algorithm 进行优化，直接算出交点
