@@ -108,3 +108,71 @@ Plane equation：$\mathbf{p}:(\mathbf{p - p'}) \cdot \mathbf{N}$
 解出 $\Large t = \frac {\mathbf{(p' - o) \cdot N}} {\mathbf{d \cdot N}}$ ，最后用 $0 \eqslantless t < \infty$ 约束结果即可
 
 求交过程可以使用 Möller Trumbore Algorithm 进行优化，直接算出交点
+这个优化方法的核心就是重心坐标，平面上任意一点都可以由重心坐标和三角形的三个顶点表示出来，我们恰好有平面内三角形的三个顶点
+我们可以得到这样的式子：$\mathbf{O} + t\mathbf{D} = (1 - b_1 - b_2)\mathbf{P_0} + b_1\mathbf{P_1} + b_2\mathbf{P_2}$
+其中的 $\mathbf{O, D, P_0, P_1, P_2}$ 都是向量，我们要求 $t, b_1, b_2$ ，就是求解行列式
+可以直接写出这个行列式的解 $\begin{bmatrix} t \\ b_1 \\ b_2 \end{bmatrix} = \frac{1}{\mathbf{S_1 \cdot E_1}}\begin{bmatrix} \mathbf{S_1 \cdot E_2} \\ \mathbf{S_1 \cdot S} \\ \mathbf{S_2 \cdot D} \end{bmatrix}$ ，然后用 $0 \eqslantless t < \infty$ 和 $0 \eqslantless b_1, b_2, b_1 + b_2 \eqslantless 1$ 约束得到求交的结果
+行列式解的变量 $\mathbf{E_1, E_2, S, S_1, S_2}$ 可以由已知量简单计算得到：$\begin{matrix}\mathbf{E_1 = P_1 - P_0} \\ \mathbf{E_2 = P_2 - P_0} \\ \mathbf{S = O - P_0} \\ \mathbf{S_1 = D \times E_2} \\ \mathbf{S_2 = S \times E_1}\end{matrix}$
+
+因此，我们可以统计出光线与平面（三角形）求交的计算量：1 div, 27 mul, 17 add
+
+### Accelerating Ray-Surface Intersection
+我们现在回顾一下光线在场景中求交的过程（以最常见的 Mesh 表示为例）：
++ 对场景中每个 mesh 的每个三角形面求交
++ 选择交点的 t 最小的那个
+
+这样有什么问题呢？
+每个像素都发射一根光线，并和场景中的所有三角形面求交，并且每根光线还有多次反射折射，计算量太大，导致我们实际进行光线追踪的时候非常慢
+
+举几个比较出名的栗子
++ San Miguel Scene ，场景中有 10.7M 三角形
++ Plant Ecosystem ，场景中由 20M 个三角形
+
+因此，我们需要减少计算次数，来加速做光线追踪的过程，比如现在被广泛使用的包围盒（Bounding Volumes/Boxes）
+
+#### Bounding Volumes
+包围盒，Bounding Volume/Box，用一个简单规则的盒子将复杂的对象（边界情况复杂、三角形面数多等等）给包起来，以光线对盒子求交来代替对复杂对象求交
++ 包围盒是完全将对象给包围起来的
++ **如果光线和包围盒没有交点，那么光线一定和包围盒内的物体没有交点**
++ 我们实际使用时，先对包围盒求交，如果有交点再对包围盒对象的三角面求交
+
+#### Ray-Intersection With Box
+之所以要将这个方法叫做包围盒，是因为我们最常用的用来包裹物体的对象就是长方体，也就是一般意义上的盒子
+
+所以，我们先来认识一下 Box ，包围盒由 3 对互相平行的面形成的交集
+Picture（使用视频里的截图内容比较好，分别截取三个平行面的交集）
+
+这个东西也就是图形学中非常出名的 Axis-Aligned Bounding Box（AABB） ，轴对齐包围盒，包围盒的边和坐标轴 $x, y, z$ 是对齐的
+
+#### Ray-Intersection With Axis-Aligned Box
+我们还是从 2D 开始，理解光线和 AABB 求交
+我们有包围盒外的任意一根光线 $\mathbf{o} + t\mathbf{d}$ 和一个 2D 的包围盒 $x_0, x_1, y_0, y_1$
++ 先对 $x = x_0$ 和 $x = x_1$ 形成的集合求交点，得到 $t_{min}$ 时刻光线和 $x = x_0$ 相交， $t_{max}$ 时刻光线和 $x = x_1$ 相交
++ 再对 $y = y_0$ 和 $y = y_1$ 形成的集合求交点，得到 $t_{min}$ 时刻光线和 $y = y_0$ 相交， $t_{max}$ 时刻光线和 $y = y_1$ 相交
+    + 图中可以看到，$t_{min} < 0$ ，我们先假设光线是一根直线，最后可以在取约束结果的时候将这种情况给处理掉
++ 最后我们对 x 平面交点的连线和 y 平面交点的连线取交集，就得到了光线和包围盒求交的结果
+
+3D 包围盒是由 3 对无穷大的面取交集形成，每对面相互平行并且对面和其他对面两两垂直
+将刚才的 2D 过程推广到 3D
++ 光线进入全部 3 个对面内，表示光线进入了包围盒
++ 光线离开任意一个对面，表示光线离开了包围盒
+
+因此对 3D 的包围盒求交：
++ 分别对 3 对平行面求 $t_{min}$ 和 $t_{max}$
+    + 即使结果为负也没有关系，可以在约束的时候处理掉
++ 那么进出包围盒的时刻 $t_{enter} = max(t_{min})$ ， $t_{exit} = min(t_{max})$ ，这很好理解
+    + 光线最晚进入第三对平行面的时刻，才能保证此时光线进入了所有的平行面
+    + 光线最早离开第一对平行面的时刻，意味着光线不满足在所有的平行面内了，必然离开了某一平面
++ 如果 $t_{enter} < t_{exit}$ 说明光线在这段时间内在包围盒中，也就意味着光线和包围盒必然相交
+
+最后我们来解决刚才遗留的问题，光线是射线而不是直线，$t$ 不能小于 0 ，我们来考虑 $t_{enter}$ 和 $t_{exit}$ 的特殊取值情况
++ 如果 $t_{exit} < 0$ ，包围盒一定在光线的背后，那么光线和包围盒不想交
++ 如果 $t_{exit} \eqslantgtr 0$ 并且 $t_{enter} < 0$ ，光线的原点在包围盒内部，那么光线和包围盒有交点
+
+那么总结出光线和 AABB 相交的条件—— $t_{enter} < t_{exit}$ $and$ $t_{exit} \eqslantgtr 0$
+
+#### 为什么要使用AABB
+对于一般的平面求交：$\Large t = \frac{\mathbf{p' - o} \cdot N}{\mathbf{d \cdot N}}$
+
+对于轴对齐包围盒求交（以 x 轴为例）：$\Large t = \frac{\mathbf{p'_x - o_x}}{\mathbf{d_x}}$
+相当于将光源的方向分解到了 $x, y, z$ 三个轴上，不用再去加入 $\mathbf{N}$ 的计算
