@@ -283,8 +283,6 @@ TODO：Picture（使用视频里的截图内容比较好，分别截取三个平
 
     ![intersection_with_box_in_2d](./images/intersection_with_box_in_2d.png)
 
-
-
 3 维包围盒是由 3 对无穷大的面取交集形成，每对面相互平行并且对面和其他对面两两垂直
 将刚才的 2 维过程推广到 3 维
 + 光线进入全部 3 个对面内，表示光线进入了包围盒
@@ -303,3 +301,34 @@ TODO：Picture（使用视频里的截图内容比较好，分别截取三个平
 + 如果 $t_{exit} \eqslantgtr 0$ 并且 $t_{enter} < 0$ ，光线的原点在包围盒内部，那么光线和包围盒有交点
 
 那么总结出光线和 AABB 相交的条件： $t_{enter} < t_{exit}$ $and$ $t_{exit} \eqslantgtr 0$
+
+## Using AABBs to accelerate ray tracing
+现在我们正式的使用包围盒来给光线追踪做加速，这里我们介绍两种方法：
++ 标准网格（Uniform Grids），也可以叫均匀网格
++ 空间分区（Spatial Partitions）
+
+### Uniform Spatial Partitions
+标准网格划分，Uniform spatial partitions，预先对场景进行处理，把场景划分为标准网格，用光线对划分出来的网格做AABB求交
+
+我们来看一下 Build Acceleration Grid 的具体步骤：
++ Find bounding box，为场景划出一个大的包围盒，将所有物体包围起来
++ Create grid，将网格均匀的划分为标准网格大小的网格块
++ 做一遍预处理，将和物体表面相交的格子打上标记
++ 现在开始做光线与物体求交，从第一个和光线相交的标准网格块开始
+    + step0：检查网格块与物体是否有相交标记
+    + step1：
+        + 如果网格块有相交标记，就进入 step2：光线就与网格块包含的物体求交
+        + 如果网格块没有相交标记，就从下一个与光线相交的网格块开始重复 step0
+    + step2：
+        + 如果光线和物体有交点，记录交点，并从下一个与光线相交的网格块开始重复 step0
+            那么这就是光线在场景中的交点（如果是第一个交点，那么这就是距离最近的交点）
+        + 如果光线和物体没有交点，就从下一个与光线相交的网格块开始重复 step0
+    + step over：没有下一个与光线相交的网格块，光线离开包围盒，表示整个求交过程结束
+    + question：如何选出下一个与光线相交的网格块？
+        + 下一个网格块一定和当前网格块相邻
+        + 根据光线的方向选取相交网格块
+
+划分标准网格的大小（Grid Resolution）对加速效果的影响：
++ One cell，相当于没有划分网格块，没有加速效果
++ Too many cell，网格块划分过于细密，导致和网格块求交就进行了大量计算，负优化（严重情况下，可能让整个过程更慢）
++ Heuristic，启发式的网格尺寸设置，根据经验做出的网格关系 —— $cells = C * objs$，在 3 维情况下 $C \approx 27$
