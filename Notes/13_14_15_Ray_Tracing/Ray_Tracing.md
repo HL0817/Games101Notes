@@ -16,6 +16,12 @@
     + 光线和包围盒求交
     + 为什么要使用AABB
     + 光线和AABB求交
++ Using AABBs to accelerate ray tracing
+    + Uniform Spatial Partitions
+    + Spatial Partitions
+    + Object Partitions
+    + Spatial vs Object Partitions
++ Basic Radiometry
 
 ## 为什么要使用光线追踪
 光栅化无法处理全局的一些效果
@@ -381,6 +387,7 @@ KD-Tree 中的遗留问题：
 ### Object Partitions
 对模型对象进行划分，这种方法被称为 Bounding Volume Hierarchy（BVH），解决了 KD-Tree 求交过程中的问题
 
+#### Building BVH
 BVH 的划分过程：
 + step0：找到场景的包围盒作为初始节点
 + step1：将节点分成两个集合（按照一定规则划分）作为子节点
@@ -400,3 +407,81 @@ BVH 数据结构：
 叶子节点：
 + 包围盒
 + 存储当前节点包围盒内的模型对象，所有对象都只会存在于叶子节点，且只会存在一个叶子节点内
+
+#### 光线穿过 BVH
+光线穿过 BVH 和光线穿过 KD-Tree 并没有本质的区别，都是光线与树形分割的包围盒求交，这里我们直接给出伪代码：
+```c++
+Intersection(Ray ray, BVH node)
+{
+    if (ray misses node.bbox) return;
+
+    if (node is a leaf node) {
+        test intersection with all objs;
+        return closest intersection;
+    }
+
+    hit1 = Intersection(ray, node.child1);
+    hit2 = Intersection(ray, node.child2);
+
+    return the closer of hit1, hit2;
+}
+```
+
+### Spatial vs Object Partitions
+Spatial Partitions
++ 按照空间划分，并且划分后不会有重叠区域
++ 一个模型对象可能被多个划分区域给包含
+
+Object Partitions
++ 按照模型对象（数量）进行划分，并且划分出来的对象集合没有交集
++ 对象集合之间的包围盒区域可能会有重叠
+
+对于光线求交而言，显然重复对几个包围盒求交的代价远远小于重复对几个模型求交
+
+## Basic Radiometry
+为什么要学习辐射度量学的基础（Basic Radiometry）？
++ Blinn-Phong model 是基于经验判断的光照模型，其中的光照强度（light intensity）都是我们自己设置，然后设定经验上的影响系数
++ Whitted style ray tracing 也是基于经验的光照模型，光照强度、反射率、折射率这些参数都是我们基于经验设置的
++ 要真正正确的绘制光的作用结果，我们必须正确的了解和认知光结构和组成
++ 辐射度量学也是路径追踪（Path Tracing）的基础
+
+在辐射度量学中的学习内容：
++ 关于照明的度量系统和度量单位
++ 光照在空间中的属性
+    + Radiant flux、intensity、irradiance、radiance
++ 物理上，准确定义和描述光照的方法
+
+### Radiant Energy and Flux
+Radiant energy （辐射能），电磁辐射所具有的能量，单位是焦耳（Joule），符号表示为 $\large Q [J = Joule]$
+
+Radiant flux/power（辐射通量），单位时间内辐射能量通过某一面积的总功率的度量，单位是瓦特（Watt），符号表示为 $\large \varPhi = \frac {dQ} {dt} [W = Watt][lm = lumen]$
+
+### Radiant Intensity
+Radiant Intensity（辐射强度），单位立体角的辐射通量（Radiant flux），单位是瓦特每球面度，符号表示为 $\large I(\omega) = \frac {d \varPhi} {d \omega} [\frac{W} {sr}][\frac {lm} {sr} = cd = candela]$
+
+先回顾一下角度的定义，以此来理解什么是立体角：
+角（angle）：radians ，弧度，圆上角的对端弧长与圆半径之比
++ $\large \theta = \frac {l} {r}$
++ 圆的弧度： $2 \pi$ radians
++ 角度的度量应该与圆的半径和周长无关，即角度不随圆的放大和缩小而变化
+
+立体角（Solid angle）：steradians ，球面上立体角对端面积与球半径的平方之比
++ $\large \Omega = \frac {A} {r^2}$
++ 球的立体角： $4 \pi$ steradians
++ 从而为推广到三维，理解一点即可，立体角不随球的半径的放大和缩小而变化，2 维是周长对应 3 维就是面积
+
+以极坐标表示的球体 $r, \theta, \phi$ 为例：
+先求出单位面积：$\large dA = (rd\theta)(r \sin \theta d \phi) = r^2 \sin \theta d\theta d\phi$
+
+单位立体角用单位面积除以半径的平方得出：$\large d\omega = \frac{dA}{r^2} = \sin \theta d\theta d\phi$
+
+那么，假设球体的面积是 $S^2$ ，从单位立体角进行积分，就可以得到整个球的立体角：
+$\large \Omega = \displaystyle\int_{S^2} d\omega = \displaystyle\int_{0}^{2 \pi} \displaystyle\int_{0}^{\pi}\sin \theta d\theta d\phi = 4\pi$
+
+现在我们回到光照这边，由辐射强度的单位立体角和单位辐射通量定义公式 $I(\omega) = \frac {d\varPhi}{d\omega}$ ，可以积分得到：
+$\large \varPhi = \displaystyle\int_{S^2} I d\omega = 4\pi I$
+
+将结果同时除以 $4\pi$ 就能得到：$\large I = \frac {\varPhi}{4\pi}$
+
+最后给一个现实生活中的例子：
+LED 灯的输出 815 lumens ，我们根据公式来算移项它的辐射强度：$Intensity = 815 lumens / 4\pi sr = 65 candelas$
