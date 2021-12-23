@@ -452,12 +452,15 @@ Object Partitions
 + 物理上，准确定义和描述光照的方法
 
 ### Radiant Energy and Flux
-Radiant energy （辐射能），电磁辐射所具有的能量，单位是焦耳（Joule），符号表示为 $\large Q [J = Joule]$
+Radiant energy （辐射能），电磁辐射所具有的能量，单位是焦耳（Joule），符号表示为
+$$\large Q [J = Joule]$$
 
-Radiant flux/power（辐射通量），单位时间内辐射能量通过某一面积的总功率的度量，单位是瓦特（Watt），符号表示为 $\large \varPhi = \frac {dQ} {dt} [W = Watt][lm = lumen]$
+Radiant flux/power（辐射通量），单位时间内辐射能量通过某一面积的总功率的度量，单位是瓦特（Watt），符号表示为
+$$\large \varPhi = \frac {dQ} {dt} [W = Watt][lm = lumen]$$
 
 ### Radiant Intensity
-Radiant Intensity（辐射强度），单位立体角的辐射通量（Radiant flux），单位是瓦特每球面度，符号表示为 $\large I(\omega) = \frac {d \varPhi} {d \omega} [\frac{W} {sr}][\frac {lm} {sr} = cd = candela]$
+Radiant Intensity（辐射强度），单位立体角的辐射通量（Radiant flux），单位是瓦特每球面度，符号表示为
+$$\large I(\omega) = \frac {d \varPhi} {d \omega} [\frac{W} {sr}][\frac {lm} {sr} = cd = candela]$$
 
 先回顾一下角度的定义，以此来理解什么是立体角：
 角（angle）：radians ，弧度，圆上角的对端弧长与圆半径之比
@@ -485,3 +488,63 @@ $\large \varPhi = \displaystyle\int_{S^2} I d\omega = 4\pi I$
 
 最后给一个现实生活中的例子：
 LED 灯的输出 815 lumens ，我们根据公式来算移项它的辐射强度：$Intensity = 815 lumens / 4\pi sr = 65 candelas$
+
+### Irradiance
+Irradiance（辐照度），入射表面上单位面积接收的辐射通量（Radiant flux），单位是瓦特每平方米，符号表示为
+$$\Large E(x) = \frac {d\varPhi(x)}{dA} [\frac{W}{m^2}][\frac {lm}{m^2} = lux]$$
+
+使用 Irradiance 理解 Lambert's Cosine Law：
++ 表面辐照度和光线方向跟表面法线夹角的余弦值成正比 $\Large E = \frac {\varPhi}{A} \cos \theta$
++ 辐照度定义中单位面积接收的辐射通量，指的是接收平面和辐射方向垂直，如果表面不平行于接收平面，会先投影后计算辐照度
+
+生活中的例子，地球之所以会有冬天和夏天，是因为太阳直射南或北半球时，另一个半球和太阳光有了夹角，辐照度减小了
+
+使用 Irradiance 理解 Irradiance 衰减 $E' = \frac {\varPhi}{4\pi r^2} = \frac {E}{r^2}$
++ 辐照度会随着距离的增加而减小
++ 随着距离增加，球面积会增加，而立体角不变，由公式可以得知：辐照度会随着距离衰减，辐射强度不会
+
+### Radiance
+Radiance（辐射率），光源发射的单位立体角单位面积的辐射通量（Radiant flux），单位是瓦特每球面度每平方米，符号表示为
+$$\Large L(p, \omega) = \frac {d^2 \varPhi(p, \omega)}{d\omega dA \cos\theta} [\frac {W}{sr m^2}][\frac {cd}{m^2} = \frac {lm}{sr m^2} = nit]$$
+
+辐射率是描述光线在空间中分布的基本场量
++ 辐射率是描述光线的相关属性
++ 辐射率是渲染的主要计算对象
+
+辐射强度、辐照度、辐射率之间的关系：
++ 三者的定义
+    + 辐射强度：单位立体角的辐射通量
+    + 辐照度：单位面积的辐射通量
+    + 辐射率：单位立体角单位面积的辐射通量
++ 三者的关系
+    + 辐射率：单位面积的辐射强度
+    辐射强度，单位立体角方向发射的辐射通量的总和。随着距离的增加，辐射强度就分摊到了一个区域内。对辐射强度做微分，取单位面积的辐射通量就获得了单位面积的辐射强度，也就是辐射率。
+    + 辐射率：单位立体角的辐照度
+    辐照度，单位面积上各个方向的辐射通量的总和。对辐照度做微分，取每个方向的辐射通量就获得了单位立体角的辐照度，也就是辐射率。
+
+### Irradiance vs Radiance
+图形学中使用最多的两个物理量，单独拎出来对比一下
+
+Irradiance：单位面积内接收到的来自各个方向的辐射通量的总和
+Radiance：单位面积内接收到的来自某一个方向（单位立体角）的辐射通量
+
+显然，二者之间是可以进行转换的：
+$$\begin{equation*}\begin{split}
+dE(p, \omega) &= L_i(p, \omega) \cos \theta d\omega \\
+E(p) &= \int_{H^2} L_i(p, \omega) \cos \theta d\omega
+\end{split}\end{equation*}$$
+
+## BRDF
+Bidirectional Reflectance Distribution Function，双向反射分布函数，简称为 BRDF，描述光是如何进行反射的函数
+
+以光线在某一点的反射为例：
+先将反射分为两个过程：
++ 这个点的辐照度 $dE(\omega_i)$ ：接收到的固定方向的单位面积的辐射通量
++ 这个点反射的辐射率 $dL_r(x, \omega_r)$：把接收到的辐射通量往各个方向发射出去：单位面积单位立体角的辐射通量
+
+那么 BRDF 就是描述单位面积内固定方向接收到的辐射通量发射到不同方向的数值变化关系
+$$f_r(\omega_i \rightarrow \omega_r) = \frac {dL_r(\omega_r)}{dE_i(\omega_i)} = \frac {dL_r(\omega_r)}{L_i(\omega_i) \cos \theta_i d\omega_i}[\frac {1}{sr}]$$
+
+### 反射方程
+
+### 渲染方程
