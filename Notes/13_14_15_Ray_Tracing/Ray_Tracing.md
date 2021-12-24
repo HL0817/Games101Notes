@@ -319,9 +319,21 @@ TODO：Picture（使用视频里的截图内容比较好，分别截取三个平
 
 我们来看一下 Build Acceleration Grid 的具体步骤：
 + Find bounding box，为场景划出一个大的包围盒，将所有物体包围起来
+
+    ![uniform_spatial_partitions_find_bounding_box](./images/uniform_spatial_partitions_find_bounding_box.png)
+
 + Create grid，将网格均匀的划分为标准网格大小的网格块
+
+    ![uniform_spatial_partitions_create_grid](./images/uniform_spatial_partitions_create_grid.png)
+
 + 做一遍预处理，将和物体表面相交的格子打上标记
+
+    ![uniform_spatial_partitions_record_have_obj_grids](./images/uniform_spatial_partitions_record_have_obj_grids.png)
+
 + 现在开始做光线与物体求交，从第一个和光线相交的标准网格块开始
+
+    ![uniform_spatial_partitions_ray_scene_intersection](./images/uniform_spatial_partitions_ray_scene_intersection.png)
+
     + step0：检查网格块与物体是否有相交标记
     + step1：
         + 如果网格块有相交标记，就进入 step2：光线就与网格块包含的物体求交
@@ -337,26 +349,54 @@ TODO：Picture（使用视频里的截图内容比较好，分别截取三个平
 
 划分标准网格的大小（Grid Resolution）对加速效果的影响：
 + One cell，相当于没有划分网格块，没有加速效果
+
+    ![uniform_spatial_partitions_grid_resolution_one_cell](./images/uniform_spatial_partitions_grid_resolution_one_cell.png)
+
 + Too many cell，网格块划分过于细密，导致和网格块求交就进行了大量计算，负优化（严重情况下，可能让整个过程更慢）
+
+    ![uniform_spatial_partitions_grid_resolution_too_many_cell](./images/uniform_spatial_partitions_grid_resolution_too_many_cell.png)
+
 + Heuristic，启发式的网格尺寸设置，根据经验给出的网格数量和场景中模型数量的关系 —— $cells = C * objs$，在 3 维情况下 $C \approx 27$
 
-标准网格在较为密集且分布均匀的的场景中有很好的工作效果
-但是对于物体大小不一（特别是差异很大），分布不均匀，出现大面积空置的场景，标准网格就没有那么好的效果（甚至可能有负优化）
+    ![uniform_spatial_partitions_grid_resolution_heuristic_cell](./images/uniform_spatial_partitions_grid_resolution_heuristic_cell.png)
+
+标准网格在较为密集且分布均匀的的场景中有很好的工作效果，例如图中的草地分布就比较均匀，能有效的加速光线追踪的求交过程：
+
+![uniform_spatial_partitions_work_well_example](./images/uniform_spatial_partitions_work_well_example.png)
+
+但是对于物体大小不一（特别是差异很大），分布不均匀，出现大面积空置的场景，标准网格就没有那么好的效果（甚至可能有负优化），下图场景比较杂乱，物体有大有小，分布很不均匀，导致了求教过程反而变得更慢：
+
+![uniform_spatial_partitions_work_Fail_example](./images/uniform_spatial_partitions_work_Fail_example.png)
 
 究其原因，密集且分布均匀可以说明场景分割出来的网格块利用率高，可以高效的剔除一些求交的多余操作；分布不均匀，有大面积空置则表示了网格的利用率低下，每次求交都要去检查很多无效的网格块
 
 ### Spatial Partitions
+Uniform Spatial Partitions 的网格有大面积的空置，导致求交的次数变多，性能反而下降。
+
+那么我们肯定要想办法优化掉空置的网格，这就是本章的重点讨论内容 —— 合理的划分场景
+
 常见的空间划分方法：
+
+![spatial_partitioning_example](./images/spatial_partitioning_example.png)
+
 + Oct-Tree，八叉树，将每一个区域分成 $2^n$ 块形成子节点，继续对子节点进行划分，直到划分成了设定停止条件
     + $n$ 指的是划分对象的维度，比如例子中是 2 维平面，划分结果就是 4 个子节点，如果是 3 维对象，那么就需要划分 8 个子节点
-+ KD-Tree，每个区域沿着某一个轴划分成 2 个子节点，考虑划分结果要尽量均匀，划分轴在例子中是水平和竖直交替的
++ KD-Tree，每个区域沿着某一个轴划分成 2 个子节点，考虑划分结果要尽量均匀，在例子中划分轴是水平和竖直交替选取的
 + BSP-Tree，每个区域沿着某个方向划分成 2 个子节点，和 KD-Tree 的区别就是做二分的时候不限制划分的方向
 
 #### KD-Tree Pre-Processing
 KD-Tree 的划分过程：
-+ step0
-+ step1
-+ step2
++ step0：将根节点的包围盒划分成两块
+
+    ![kd_tree_pre_processing_stpe0](./images/kd_tree_pre_processing_stpe0.png)
+
++ step1：将划分后的两个子节点分别做划分（例子中只划分了右边的节点作为演示）
+
+    ![kd_tree_pre_processing_stpe1](./images/kd_tree_pre_processing_stpe1.png)
+
++ step2：递归的将每个叶子节点进行划分，直到划分得到的叶子节点符合设定的要求（例如划分后只包含多少个物体）
+
+    ![kd_tree_pre_processing_stpe2](./images/kd_tree_pre_processing_stpe2.png)
 
 KD-Trees 的数据结构：
 中间节点：
@@ -368,34 +408,72 @@ KD-Trees 的数据结构：
 + 存储当前节点对应的网格块内的模型对象，所有对象都只会存在叶子节点
 
 #### 光线穿过 KD-Tree
-直接上个例子看一下求交过程
-+ step0
-+ step1
-+ step2
-+ step3
-+ step4
-+ step5
-+ step6
+
+![kd_tree_ray_scene_intersection_example](./images/kd_tree_ray_scene_intersection_example.png)
+
+以上图的例子来了解完整的求交过程：
++ step0：先和根节点（A）的包围盒求交，也就是和整个场景的包围盒求交
+    如果有交点才继续往子节点做求交，毕竟**根节点和光线没有交点，那么它的子节点也和光线没有交点**
+
+    ![kd_tree_ray_scene_intersection_step0](./images/kd_tree_ray_scene_intersection_step0.png)
+
++ step1：光线和左子节点（1）求交，左子节点是叶子节点
+    该节点的包围盒和光线相交，表示该节点对应的物体可能和光线相交，那么就需要对叶子节点存储的物体进行求交
+
+    ![kd_tree_ray_scene_intersection_step1](./images/kd_tree_ray_scene_intersection_step1.png)
+
++ step2：光线和右子节点（B）求交，右子节点是中间节点
+    该节点的包围盒和光线相交，表示该节点的子节点（2、C）必然和光线相交，我们继续递归向下求交
+
+    ![kd_tree_ray_scene_intersection_step2](./images/kd_tree_ray_scene_intersection_step2.png)
+
++ step3：光线和中间节点（B）的左子节点（2）求交，叶子节点的处理过程都和 step1 相同
+
+    ![kd_tree_ray_scene_intersection_step3](./images/kd_tree_ray_scene_intersection_step3.png)
+
++ step4：光线和中间节点（B）的右子节点（C）求交，中间节点的处理过程都和 step2 相同
+
+    ![kd_tree_ray_scene_intersection_step4](./images/kd_tree_ray_scene_intersection_step4.png)
+
++ step5：光线和中间节点（C）的右子节点（3）求交，叶子节点的处理过程都和 step1 相同
+
+    ![kd_tree_ray_scene_intersection_step5](./images/kd_tree_ray_scene_intersection_step5.png)
+
++ step6：光线和中间节点（C）的左子节点（D）求交，发现该节点只有两个叶子节点
+    这时，已经达到递归的返回条件，对两个叶子节点的物体对象分别求交之后，进行递归返回
+
+    ![kd_tree_ray_scene_intersection_step6](./images/kd_tree_ray_scene_intersection_step6.png)
 
 KD-Tree 中的遗留问题：
-一个模型对象被划分到了多个不同区域，那么这个物体可能被多个叶子节点存储，可能造成物体的重复求交
-我们不好做三角形是否在划分区域内的判断，这样的逻辑比较难以处理，且情况复杂
++ 一个模型对象被划分到了多个不同区域，那么这个物体可能被多个叶子节点存储，可能造成物体的重复求交
++ 我们不好做三角形是否在划分区域内的判断，这样的逻辑比较难以处理，且情况复杂
 
 这些问题导致 KD-Tree 渐渐的在行业中被抛弃
 
-
 ### Object Partitions
-对模型对象进行划分，这种方法被称为 Bounding Volume Hierarchy（BVH），解决了 KD-Tree 求交过程中的问题
+接下来介绍对模型对象进行划分的包围盒划分方法，这种方法被称为 Bounding Volume Hierarchy（BVH），解决了 KD-Tree 求交过程中的问题
 
 #### Building BVH
 BVH 的划分过程：
 + step0：找到场景的包围盒作为初始节点
+
+    ![bounding_volumes_processing_step0](./images/bounding_volumes_processing_step0.png)
+
 + step1：将节点分成两个集合（按照一定规则划分）作为子节点
+
+    ![bounding_volumes_processing_step1](./images/bounding_volumes_processing_step1.png)
+
 + step2：重新计算两个子节点各自的包围盒（得到的包围盒比原来的包围盒小了，感觉这一点也比较不错）
-+ step3：对划分出来的子节点各重复 step1 ，直到满足一定的结束条件
+
+    ![bounding_volumes_processing_step2](./images/bounding_volumes_processing_step2.png)
+
++ step3：对划分出来的子节点分别重复执行 step1 ，直到满足一定的结束条件（例如每个包围盒的三角形面数不超过5）
+
+    ![bounding_volumes_processing_step3](./images/bounding_volumes_processing_step3.png)
+
 + step4：模型被存储在叶子节点的包围盒中
 
-划分子节点的一些策略：
+其中，如何制定划分规则划是对 BVH 的结果影响最大的因素，给出划分子节点的一些策略：
 + 按某个维度进行划分，比如水平和竖直交替划分
 + 选择节点的包围盒最长的轴进行划分，分成两半
 + 选择范围内中间数量的物体，将模型按照数量划分到两个子节点
