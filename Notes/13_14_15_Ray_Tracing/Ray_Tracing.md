@@ -505,12 +505,19 @@ Intersection(Ray ray, BVH node)
 }
 ```
 
+
 ### Spatial vs Object Partitions
 Spatial Partitions
+
+![spatial_partition_vs_object_partition_spatial_example](./images/spatial_partition_vs_object_partition_spatial_example.png)
+
 + 按照空间划分，并且划分后不会有重叠区域
 + 一个模型对象可能被多个划分区域给包含
 
 Object Partitions
+
+![spatial_partition_vs_object_partition_spatial_object](./images/spatial_partition_vs_object_partition_spatial_object.png)
+
 + 按照模型对象（数量）进行划分，并且划分出来的对象集合没有交集
 + 对象集合之间的包围盒区域可能会有重叠
 
@@ -616,13 +623,139 @@ E(p) &= \int_{H^2} L_i(p, \omega) \cos \theta d\omega
 Bidirectional Reflectance Distribution Function，双向反射分布函数，简称为 BRDF，描述光是如何进行反射的函数
 
 以光线在某一点的反射为例：
-先将反射分为两个过程：
-+ 这个点的辐照度 $dE(\omega_i)$ ：接收到的固定方向的单位面积的辐射通量
-+ 这个点反射的辐射率 $dL_r(x, \omega_r)$：把接收到的辐射通量往各个方向发射出去：单位面积单位立体角的辐射通量
 
-那么 BRDF 就是描述单位面积内固定方向接收到的辐射通量发射到不同方向的数值变化关系
-$$f_r(\omega_i \rightarrow \omega_r) = \frac {dL_r(\omega_r)}{dE_i(\omega_i)} = \frac {dL_r(\omega_r)}{L_i(\omega_i) \cos \theta_i d\omega_i}[\frac {1}{sr}]$$
+![BRDF_light_reflection_on_a_point_of_the_surface](./images/BRDF_light_reflection_on_a_point_of_the_surface.png)
+
+把物体反射光线换一个思路理解，物体吸收光源发射的能量，再将能量发射出去，这样就将反射分为两个过程：
++ 这个点单位面积内接受到了固定方向的辐射通量，单位面积上接受到的来自某一方向的辐射通量，即单位面积上接收到了辐照度 $dE(\omega_i)$
++ 这个点把接收到的辐射通量往各个方向发射出去，单位面积上往各个单位立体角方向发射的辐射通量记作： $dL_r(x, \omega_r)$
+
+从物理定义上讲：单位面积上接收的某一方向的辐照度，被反射到各个不同的单位立体角方向
+
+那么 BRDF 就是描述单位面积内固定方向接收到的辐射通量发射到不同方向的数值变化的分布情况
+$$\Large f_r(\omega_i \rightarrow \omega_r) = \frac {dL_r(\omega_r)}{dE_i(\omega_i)} = \frac {dL_r(\omega_r)}{L_i(\omega_i) \cos \theta_i d\omega_i}[\frac {1}{sr}]$$
 
 ### 反射方程
+刚才我们理解了从某一方向入射的辐照度，被发射到不同立体角方向的变化关系，我们可以由 BRDF 算出固定入射方向的辐照度对不同出射方向辐射率的贡献
+
+那么我们反过来理解，对于固定出射方向的辐射率来说，他是由该点每一个入射方向的辐照度的贡献累计起来的
+
+![reflection_equation_example](./images/reflection_equation_example.png)
+
+反射方程就是对于固定出射方向（观察方向）的辐射率，可以由所有入射方向的辐照度的贡献累计起来，其中各个方向的贡献值就是由 BRDF 决定
+
+$$\Large L_r(p, \omega_r) = \displaystyle\int_{H^2}f_r(p, \omega_i \rightarrow \omega_r) L_i(p, \omega_i) \cos\theta_i d\omega_i$$
+
+很自然，我们能想到所有入射方向的辐照度，不仅仅指光源直接照射的输入，也包括了其他的物体反射光线的输入，也就是说物体反射的出射辐射率也会成为其他地方的入射的辐照度
 
 ### 渲染方程
+如果有一个自发光（Emission）的物体，它不仅有入射的光线输入，它还有自身往外发射的光线
+
+我们把所有的光线传播整合到一起，用一个渲染方程来描述出光线传播的具体数值变化：
+$$\Large L_r(p, \omega_o) = L_e(p, \omega_o) + \displaystyle\int_{\Omega^+} L_i(p, \omega_i) f_r(p, \omega_i, \omega_o) (n \cdot \omega_i) d\omega_i$$
+
+这就是传说中的 Kajia Rendering Equation
+
+#### 理解渲染方程
+对于点光源来说：
+
+![single_point_reflection_equation](./images/single_point_reflection_equation.png)
+
+由渲染方程可得： $L_r(X, \omega_r) = L_e(X, \omega_r) + L_i(X, \omega_i) f_r(X, \omega_i, \omega_r) (n, \omega_i)$ ，其中：
++ $L_r(x, \omega_r)$ 是反射光线，表示某一方向的渲染方程输出
++ $L_e(p, \omega_r)$ 是自发光项
++ $L_i(p, \omega_i)$ 是来自光源的直射光线
++ $f_r(p, \omega_i, \omega_r)$ 是 BRDF 项，表示光源到输出到这个方向的能量的贡献
++ $(n, \omega_i)$ 是直射光线和法线夹角的余弦值
+
+对于多点光源来说：
+
+![multi_points_reflection_equation](./images/multi_points_reflection_equation.png)
+
+多点光源的计算就是将每个点光源的输出给累计起来，这样符合生活常识，光源越多同一个物体看起来就越亮
+
+由渲染方程可得： $L_r(X, \omega_r) = L_e(X, \omega_r) + \sum L_i(X, \omega_i) f_r(X, \omega_i, \omega_r) (n, \omega_i)$
+
+对于面光源来说：
+
+![plane_light_source_reflection_equation](./images/plane_light_source_reflection_equation.png)
+
+面光源就是一堆点光源的集合，我们将这些点积分起来，就可以得到对应的结果
+
+由渲染方程可得： $L_r(X, \omega_r) = L_e(X, \omega_r) + \int_{\Omega} L_i(X, \omega_i) f_r(X, \omega_i, \omega_r) \cos\theta_i d\omega_i$
+
+积分面光源占据的立体角，得到点 $X$ 的面光源输入辐照度
+
+对于其他物体反射的光线来说：
+
+![other_objects_reflection_light_reflection_equation](./images/other_objects_reflection_light_reflection_equation.png)
+
+这种情况和面光源一致，考虑物体的某个面反射过来的光线
+
+由渲染方程可得： $L_r(x, \omega_r) = L_e(x, \omega_r) + \int_{\Omega} L_i(X', -\omega_i) f_r(x, \omega_i, \omega_r) \cos\theta_i d\omega_i$
+
+我们将物体反射过来的光线，当做光源发出的光线，这样统一处理就好了
+
+#### 解渲染方程
+对于渲染方程 $L_r(x, \omega_r) = L_e(x, \omega_r) + \int_{\Omega} L_i(X', -\omega_i) f_r(x, \omega_i, \omega_r) \cos\theta_i d\omega_i$
+
+我们不知道的项仅有 $L_r(X, \omega_r)$ 和 $L_i(X', -\omega_i)$
+
+我们将这个式子简写为 $l(u) = e(u) + \int l(v) K(u, v) dv$
+
+$u$ 表示物体本身， $v$ 表示来自光源， $K(u, v)$ 表示 BRDF 项
+
+把 $\int ... K(u, v)dv$ 作为算子，记作 $K$ ，将渲染方程再次简写为 $L = E + KL$ ，其中 $L, E$ 是向量， $K$ 是矩阵
+
+现在处理这个 $L = E + KL$， 将它写成 $L = (1 - K)^{-1}E$
+
+将 $(1 - K)^{-1}$ 展开为 $(1 + K + K^2 + k^3 + ...)$ 最后得到方程 $L = E + KE + K^2E + K^3E + ...$
+
+~~整个过程好像是由弗雷德霍姆积分方程和二项分布的性质进行推算得到的，具体推算过程暂时不了解~~
+
+现在我们来理解一下这个渲染方程：
+$$\Large L = E + KE + K^2E + K^3E + ...$$
++ $E$ 表示物体的自发光
++ $KE$ 表示物体表面接收到的光源直射的光照
++ $K^2E$ 表示物体表面接收到的光线经过两次弹射所发出的光照
+    + 为什么是弹射两次呢，因为该物体本身就需要占据一次弹射来将光线反射到我们眼睛里
++ $K^3E$ 表示物体表面接收到的光线经过三次弹射所发出的光照
+
+现在我们将物体表面的光照做了如下分类：
+自发光：物体自身发出的光线
+直接光照：物体接收到的直接来自于光源照射的光线
+间接光照：物体接收到的来自其他物体反射的光线，该反射的过程中光线可能弹射多次
+
+#### 渲染方程的效果
++ 直接光照
+图中点 $P$ 没有光源直接照射，所以是黑色，表面它处于光源的阴影中
+
+    ![rendering_equation_direct_illumination_example](./images/rendering_equation_direct_illumination_example.png)
+
++ 直接光照 + 一次弹射间接光照（忽略物体自身占据的弹射次数）
+图中点 $P$ 接收由周围物体弹射一次发射过来的光线，已经有基本的颜色
+
+    ![rendering_equation_direct_illumination_and_one_bounce_indirect_illumination_example](./images/rendering_equation_direct_illumination_and_one_bounce_indirect_illumination_example.png)
+
++ 直接光照 + 两次弹射间接光照（忽略物体自身占据的弹射次数）
+图中点 $P$ 接收由周围物体弹射一次和弹射两次发射过来的光线，变得比前面更亮了一些
+
+    ![rendering_equation_direct_illumination_and_two_bounce_indirect_illumination_example](./images/rendering_equation_direct_illumination_and_two_bounce_indirect_illumination_example.png)
+
++ 直接光照 + 四次弹射间接光照（忽略物体自身占据的弹射次数）
+图中点 $P$ 接收由周围物体弹射一次和弹射两次发射过来的光线，变得比前面更亮了一些
+同时图里正上方的玻璃灯罩不再时黑色，因为两次弹射只让光线进入了玻璃灯罩，再经过两次弹射才会让光线出玻璃球，并射入我们的眼睛
+
+    ![rendering_equation_direct_illumination_and_four_bounce_indirect_illumination_example](./images/rendering_equation_direct_illumination_and_four_bounce_indirect_illumination_example.png)
+
++ 直接光照 + 八次弹射间接光照（忽略物体自身占据的弹射次数）
+图中点 $P$ 接收由周围物体弹射一次和弹射两次发射过来的光线，变得比前面更亮了一些
+
+    ![rendering_equation_direct_illumination_and_eight_bounce_indirect_illumination_example](./images/rendering_equation_direct_illumination_and_eight_bounce_indirect_illumination_example.png)
+
++ 直接光照 + 16次弹射间接光照（忽略物体自身占据的弹射次数）
+图中点 $P$ 接收由周围物体弹射一次和弹射两次发射过来的光线，变得比前面更亮了一些
+
+    ![rendering_equation_direct_illumination_and_sixteen_bounce_indirect_illumination_example](./images/rendering_equation_direct_illumination_and_sixteen_bounce_indirect_illumination_example.png)
+
+随着间接光照的光线弹射次数的增多，物体变亮的程度逐渐变小，最后会趋于收敛（可忽略的极小值），符合能量守恒
