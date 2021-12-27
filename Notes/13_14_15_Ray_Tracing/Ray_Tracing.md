@@ -663,9 +663,9 @@ $$\Large L_r(p, \omega_o) = L_e(p, \omega_o) + \displaystyle\int_{\Omega^+} L_i(
 
 由渲染方程可得： $L_r(X, \omega_r) = L_e(X, \omega_r) + L_i(X, \omega_i) f_r(X, \omega_i, \omega_r) (n, \omega_i)$ ，其中：
 + $L_r(x, \omega_r)$ 是反射光线，表示某一方向的渲染方程输出
-+ $L_e(p, \omega_r)$ 是自发光项
-+ $L_i(p, \omega_i)$ 是来自光源的直射光线
-+ $f_r(p, \omega_i, \omega_r)$ 是 BRDF 项，表示光源到输出到这个方向的能量的贡献
++ $L_e(X, \omega_r)$ 是自发光项
++ $L_i(X, \omega_i)$ 是来自光源的直射光线
++ $f_r(X, \omega_i, \omega_r)$ 是 BRDF 项，表示光源到输出到这个方向的能量的贡献
 + $(n, \omega_i)$ 是直射光线和法线夹角的余弦值
 
 对于多点光源来说：
@@ -721,10 +721,10 @@ $$\Large L = E + KE + K^2E + K^3E + ...$$
     + 为什么是弹射两次呢，因为该物体本身就需要占据一次弹射来将光线反射到我们眼睛里
 + $K^3E$ 表示物体表面接收到的光线经过三次弹射所发出的光照
 
-现在我们将物体表面的光照做了如下分类：
+由上述过程，可将物体表面的光照做如下分类：
 自发光：物体自身发出的光线
 直接光照：物体接收到的直接来自于光源照射的光线
-间接光照：物体接收到的来自其他物体反射的光线，该反射的过程中光线可能弹射多次
+间接光照：物体接收到的来自其他物体反射的光线，该反射得到的光线可能在物体间弹射多次
 
 #### 渲染方程的效果
 + 直接光照
@@ -758,4 +758,4 @@ $$\Large L = E + KE + K^2E + K^3E + ...$$
 
     ![rendering_equation_direct_illumination_and_sixteen_bounce_indirect_illumination_example](./images/rendering_equation_direct_illumination_and_sixteen_bounce_indirect_illumination_example.png)
 
-随着间接光照的光线弹射次数的增多，物体变亮的程度逐渐变小，最后会趋于收敛（可忽略的极小值），符合能量守恒
+随着间接光照的光线弹射次数的增多，物体变亮的程度逐渐变小，最后会趋于收敛（可忽略的极小值），符合能量守恒定律（每次弹射光线都有能量损失）
