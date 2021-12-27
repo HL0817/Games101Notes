@@ -544,74 +544,118 @@ Radiant flux/power（辐射通量），单位时间内辐射能量通过某一�
 $$\large \varPhi = \frac {dQ} {dt} [W = Watt][lm = lumen]$$
 
 ### Radiant Intensity
-Radiant Intensity（辐射强度），单位立体角的辐射通量（Radiant flux），单位是瓦特每球面度，符号表示为
-$$\large I(\omega) = \frac {d \varPhi} {d \omega} [\frac{W} {sr}][\frac {lm} {sr} = cd = candela]$$
+Radiant Intensity（辐射强度），单位立体角的辐射通量（Radiant flux），单位是瓦特每球面度
+
+![radiant_intensity_example](./images/radiant_intensity_example.png)
+
+符号表示为 
+$$\Large I(\omega) = \frac {d \varPhi} {d \omega} [\frac{W} {sr}][\frac {lm} {sr} = cd = candela]$$
 
 先回顾一下角度的定义，以此来理解什么是立体角：
 角（angle）：radians ，弧度，圆上角的对端弧长与圆半径之比
+
+![defination_of_angle_example](./images/defination_of_angle_example.png)
+
 + $\large \theta = \frac {l} {r}$
 + 圆的弧度： $2 \pi$ radians
 + 角度的度量应该与圆的半径和周长无关，即角度不随圆的放大和缩小而变化
 
 立体角（Solid angle）：steradians ，球面上立体角对端面积与球半径的平方之比
+
+![defination_of_solid_angle_example](./images/defination_of_solid_angle_example.png)
+
 + $\large \Omega = \frac {A} {r^2}$
 + 球的立体角： $4 \pi$ steradians
-+ 从而为推广到三维，理解一点即可，立体角不随球的半径的放大和缩小而变化，2 维是周长对应 3 维就是面积
++ 从而为推广到三维，理解一点即可，立体角不随球的半径的放大和缩小而变化，2 维是周长对应到 3 维就是面积
 
-以极坐标表示的球体 $r, \theta, \phi$ 为例：
-先求出单位面积：$\large dA = (rd\theta)(r \sin \theta d \phi) = r^2 \sin \theta d\theta d\phi$
+以极坐标表示的球体 $r, \theta, \phi$ 为例，算出单位立体角：
 
-单位立体角用单位面积除以半径的平方得出：$\large d\omega = \frac{dA}{r^2} = \sin \theta d\theta d\phi$
+![unit_solid_angle_defination_example](./images/unit_solid_angle_defination_example.png)
 
-那么，假设球体的面积是 $S^2$ ，从单位立体角进行积分，就可以得到整个球的立体角：
+先求出单位面积 $\large dA = (rd\theta)(r \sin \theta d \phi) = r^2 \sin \theta d\theta d\phi$
+
+单位立体角用单位面积除以半径的平方得出 $\large d\omega = \frac{dA}{r^2} = \sin \theta d\theta d\phi$
+
+那么，假设球体的面积是 $S^2$ ，从单位立体角进行积分，就可以得到整个球的立体角
 $\large \Omega = \displaystyle\int_{S^2} d\omega = \displaystyle\int_{0}^{2 \pi} \displaystyle\int_{0}^{\pi}\sin \theta d\theta d\phi = 4\pi$
 
-现在我们回到光照这边，由辐射强度的单位立体角和单位辐射通量定义公式 $I(\omega) = \frac {d\varPhi}{d\omega}$ ，可以积分得到：
-$\large \varPhi = \displaystyle\int_{S^2} I d\omega = 4\pi I$
+现在我们回到光照这边，由辐射强度的单位立体角和单位辐射通量定义公式 $I(\omega) = \frac {d\varPhi}{d\omega}$ 计算点光源的辐射通量
+
+![point_light_source_intensity_defination](./images/point_light_source_intensity_defination.png)
+
+可以积分得到 $\large \varPhi = \displaystyle\int_{S^2} I d\omega = 4\pi I$
 
 将结果同时除以 $4\pi$ 就能得到：$\large I = \frac {\varPhi}{4\pi}$
 
-最后给一个现实生活中的例子：
-LED 灯的输出 815 lumens ，我们根据公式来算移项它的辐射强度：$Intensity = 815 lumens / 4\pi sr = 65 candelas$
+最后给一个现实生活中的例子，LED 灯的输出 815 lumens ，我们根据公式来算移项它的辐射强度：$Intensity = 815 lumens / 4\pi sr = 65 candelas$
+
+![modern_led_light_intensity_example](./images/modern_led_light_intensity_example.png)
 
 ### Irradiance
-Irradiance（辐照度），入射表面上单位面积接收的辐射通量（Radiant flux），单位是瓦特每平方米，符号表示为
+Irradiance（辐照度），入射表面上单位面积接收的辐射通量（Radiant flux），单位是瓦特每平方米
+
+![irradiance_example](./images/irradiance_example.png)
+
+符号表示为
 $$\Large E(x) = \frac {d\varPhi(x)}{dA} [\frac{W}{m^2}][\frac {lm}{m^2} = lux]$$
 
 使用 Irradiance 理解 Lambert's Cosine Law：
+
+![irradiance_explain_lamberts_cosine_low](./images/irradiance_explain_lamberts_cosine_low.png)
+
 + 表面辐照度和光线方向跟表面法线夹角的余弦值成正比 $\Large E = \frac {\varPhi}{A} \cos \theta$
 + 辐照度定义中单位面积接收的辐射通量，指的是接收平面和辐射方向垂直，如果表面不平行于接收平面，会先投影后计算辐照度
 
 生活中的例子，地球之所以会有冬天和夏天，是因为太阳直射南或北半球时，另一个半球和太阳光有了夹角，辐照度减小了
 
+![irradiance_explain_earth_seasons](./images/irradiance_explain_earth_seasons.png)
+
 使用 Irradiance 理解 Irradiance 衰减 $E' = \frac {\varPhi}{4\pi r^2} = \frac {E}{r^2}$
+
+![light_falloff_by_distance](./images/light_falloff_by_distance.png)
+
 + 辐照度会随着距离的增加而减小
 + 随着距离增加，球面积会增加，而立体角不变，由公式可以得知：辐照度会随着距离衰减，辐射强度不会
 
 ### Radiance
-Radiance（辐射率），光源发射的单位立体角单位面积的辐射通量（Radiant flux），单位是瓦特每球面度每平方米，符号表示为
-$$\Large L(p, \omega) = \frac {d^2 \varPhi(p, \omega)}{d\omega dA \cos\theta} [\frac {W}{sr m^2}][\frac {cd}{m^2} = \frac {lm}{sr m^2} = nit]$$
-
 辐射率是描述光线在空间中分布的基本场量
+
+![radiance_is_the_quantity_associated_with_a_ray](./images/radiance_is_the_quantity_associated_with_a_ray.png)
+
 + 辐射率是描述光线的相关属性
 + 辐射率是渲染的主要计算对象
 
-辐射强度、辐照度、辐射率之间的关系：
-+ 三者的定义
-    + 辐射强度：单位立体角的辐射通量
-    + 辐照度：单位面积的辐射通量
-    + 辐射率：单位立体角单位面积的辐射通量
-+ 三者的关系
-    + 辐射率：单位面积的辐射强度
+Radiance（辐射率），光源发射的单位立体角单位面积的辐射通量（Radiant flux），单位是瓦特每球面度每平方米
+
+![radiance_example](./images/radiance_example.png)
+
+符号表示为
+$$\Large L(p, \omega) = \frac {d^2 \varPhi(p, \omega)}{d\omega dA \cos\theta} [\frac {W}{sr m^2}][\frac {cd}{m^2} = \frac {lm}{sr m^2} = nit]$$
+
+### 辐射强度、辐照度、辐射率之间的关系：
+#### 定义上的区别
++ 辐射强度：单位立体角的辐射通量
++ 辐照度：单位面积的辐射通量
++ 辐射率：单位立体角单位面积的辐射通量
+#### 转换关系
++ 辐射率，单位面积的辐射强度 $L(p, \omega) = \Large \frac {dI(p, \omega)} {dA \cos\theta}$
+
+    ![exiting_radiance_example](./images/exiting_radiance_example.png)
+
     辐射强度，单位立体角方向发射的辐射通量的总和。随着距离的增加，辐射强度就分摊到了一个区域内。对辐射强度做微分，取单位面积的辐射通量就获得了单位面积的辐射强度，也就是辐射率。
-    + 辐射率：单位立体角的辐照度
++ 辐射率，单位立体角的辐照度 $L(p, \omega) = \Large \frac {dE(p)} {d\omega \cos\theta}$
+
+    ![incident_radiance_example](./images/incident_radiance_example.png)
+
     辐照度，单位面积上各个方向的辐射通量的总和。对辐照度做微分，取每个方向的辐射通量就获得了单位立体角的辐照度，也就是辐射率。
 
 ### Irradiance vs Radiance
 图形学中使用最多的两个物理量，单独拎出来对比一下
 
-Irradiance：单位面积内接收到的来自各个方向的辐射通量的总和
-Radiance：单位面积内接收到的来自某一个方向（单位立体角）的辐射通量
+Irradiance ，单位面积内接收到的来自各个方向的辐射通量的总和
+Radiance ，单位面积内接收到的来自某一个方向（单位立体角）的辐射通量
+
+![unit_hemisphere_example](./images/unit_hemisphere_example.png)
 
 显然，二者之间是可以进行转换的：
 $$\begin{equation*}\begin{split}
