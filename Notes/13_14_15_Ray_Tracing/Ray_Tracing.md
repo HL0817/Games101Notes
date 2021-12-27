@@ -22,6 +22,16 @@
     + Object Partitions
     + Spatial vs Object Partitions
 + Basic Radiometry
+    + Radiant Energy and Flux
+    + Radiant Intensity
+    + Irradiance
+    + Radiance
+    + Intensity, Irradiance, Radiance 之间的关系
++ The Rendering Equation
+    + BRDF
+    + 反射方程
+    + 渲染方程
++ Probability Review
 
 ## 为什么要使用光线追踪
 光栅化无法处理全局的一些效果
@@ -803,3 +813,61 @@ $$\Large L = E + KE + K^2E + K^3E + ...$$
     ![rendering_equation_direct_illumination_and_sixteen_bounce_indirect_illumination_example](./images/rendering_equation_direct_illumination_and_sixteen_bounce_indirect_illumination_example.png)
 
 随着间接光照的光线弹射次数的增多，物体变亮的程度逐渐变小，最后会趋于收敛（可忽略的极小值），符合能量守恒定律（每次弹射光线都有能量损失）
+
+## Probability Review
+
+### Random Variables
+随机变量，Random variable，表示取某个值的分布，记作 $X$
+随机变量分布，Probability density function（PDF），表示取某个随机变量的概率，记作 $X \sim p(x)$
+
+举一个例子，均匀分布，指所有取值的概率相等
+
+骰子就是典型的均匀分布
+
+![uniform_pdf_example](./images/uniform_pdf_example.png)
+
+$X$ 可能取的值有 $1, 2, 3, 4, 5, 6$
+那么，他们的分布分别是 $p(1) = p(2) = p(3) = vp(4) = p(5) = p(6)$
+
+### Probabilities
+
+![probabilities_example](./images/probabilities_example.png)
+
+$n$ 个离散的随机变量 $x_i$ ，对应的概率是 $p_i$
+
+那么，概率分布要满足以下要求：
++ $p_i >= 0$
++ $\displaystyle \sum_{i = 1}^{n}p_i = 1$
+
+还是以骰子为例，每个面的概率 $p_i = \Large \frac {1}{6}$
+
+### Expected Value
+期望，Expected value，多次重复取随机变量并做平均，得到的值被叫做期望
+
+$X$ 符合 $n$ 个离散的随机变量 $x_i$ ，对应的概率是 $p_i$ 的概率分布
+
+那么 $X$ 的期望 $E[X] = \displaystyle \sum_{i = 1}^{n}x_ip_i$
+
+还是以骰子为例，期望为 $E[X] = \displaystyle \sum_{i = 1}^{n} \frac{i}{6} = (1 + 2 + 3 + 4 + 5 + 6)/6 = 3.5$
+
+### 连续情况下的 PDF
+$X \sim p(x)$ 的分布如下图
+
+![continuous_case_pdf_example](./images/continuous_case_pdf_example.png)
+
+和非连续的概率条件相同
++ $p(x) \ge 0$
++ $\displaystyle \int p(x)dx = 1$，在连续时表现为积分为 $1$ ，即 $p(x)$ 和 $x-axis$ 之间的面积为 $1$
+
+$X$ 的期望 $E[X] = \displaystyle \int xp(x)dx$
+
+PDf 在这个时候称为概率密度函数
+
+### 随机变量函数
+$Y$ 是随机变量 $X$ 的函数
+
+$X$ 满足 $X \sim p(x)$
+
+那么 $Y = f(X)$ 也满足 $X \sim p(x)$
+
+$Y$ 的期望是 $E[Y] = E[f(x)] = \displaystyle \int f(x)p(x)dx$
