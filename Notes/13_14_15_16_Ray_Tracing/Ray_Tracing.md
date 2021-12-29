@@ -914,5 +914,67 @@ $Y$ 的期望是 $E[Y] = E[f(x)] = \displaystyle \int f(x)p(x)dx$
 即蒙特卡洛方法是**使用大样本的随机抽样来近似得到问题的数值解**
 
 ### 理解蒙特卡洛积分
+蒙特卡洛方法可以数值上求解面积，那么当然也可以求解特定范围内函数与 $x-axis$ 的面积
 
-### 推导蒙特卡洛积分估计
+以两个不同的角度来理解蒙特卡洛积分 $F_N(x) = \displaystyle \frac {1}{N} \sum_{i = 1}^{N} \frac {f(X_i)}{p(X_i)}$
+
+#### 例1
+现有一个如下图的复杂函数 $f(x)$ ，在 $[a, b]$ 的积分如图中蓝色区域所示面积，记作 $\displaystyle \int_a^b f(x)dx$
+
+![monte_carlo_estimator_example1_function_f](./images/monte_carlo_estimator_example1_function_f.png)
+
+有如下图的均匀分布 $X_i \sim p(x) = C$
+
+![monte_carlo_estimator_example1_function_p](./images/monte_carlo_estimator_example1_function_p.png)
+
+由 $\displaystyle \int_a^b f(x)dx = \displaystyle \int_a^b C dx = 1$ 可得 $C = \displaystyle \frac {1}{b - a}$
+
+用该均匀分布估算函数的积分值，带入蒙特卡洛积分可得
+$$\Large F_N = \displaystyle \frac {b - a}{N} \sum_{i = 1}^{N} f(X_i)$$
+
+我们可以这样理解这个式子：
+
+![monte_carlo_estimator_example1_averageing_function_values](./images/monte_carlo_estimator_example1_averageing_function_values.png)
+
+将 $x \sube [a, b]$ 均匀的分成 $N$ 份
+将每个 $x = X_i$ 带入原函数求出 $f(X_i)$，将 $(b - a)$ 和 $f(X_i)$ 当做矩形的宽和高，求出面积为 $A_i = (b - a)f(X_i)$
+将 $A_i$ 作为函数 $f(x)$ 在 $[a, b]$ 上的积分值样本
+那么可以得出这样的关系式 $\displaystyle \int_a^b f(x)dx = \frac {1}{N}\sum_{i = 1}^{N} A_i = \frac {b - a}{N}\sum_{i = 1}^{N}f(X_i)$
+
+#### 例2
+设函数 $f(x) = 3x^2$ ，计算其在区间 $[a, b]$ 上的积分值，如下图可得 $F(x) = \displaystyle \int_a^b f(x) = x^3|_a^b$
+
+![monte_carlo_estimator_example2_3x^2](./images/monte_carlo_estimator_example2_3x^2.png)
+
+以均匀分布 $X_i \sim p(x) = C$ 采样该函数，得到蒙特卡洛积分 $F_N = \displaystyle \frac {b - a}{N} \sum_{i = 1}^{N} f(X_i)$
+
+假设要求的区间为 $[1, 3]$ ，那么有
++ 将 $a = 1,b = 3$ 带入不定积分 $F(x) = x^3|_a^b$ 得到积分值为 $26$
++ 若样本为 $\{2\}$ ，则 $F_1(x) = 24$
++ 若样本为 $\{1, 2, 3\}$ ，则 $F_3(x) = 28$
++ 若样本为 $\{1.0, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3.0\}$ ，则 $F_9(x) = 26.5$
+
+随着采样次数增多，蒙特卡洛积分求取的积分值越来越接近不定积分算出的数值
+
+### 证明蒙特卡洛积分估计
+蒙特卡洛积分一般形式 $F_N(X) = \displaystyle \frac {1}{N} \sum_{i = 1}^{N} \frac {f(X_i)}{p(X_i)}$
+
+证明如下：
+$E[F_N(X)] \\
+= \displaystyle E[\frac {1}{N} \sum_{i = 1}^{N} \frac {f(X_i)}{p(X_i)}] \\
+= \frac {1}{N} \sum_{i = 1}^{N} \int \frac {f(x)}{p(x)} \cdot p(x)dx \\
+= \frac {1}{N} \sum_{i = 1}^{N} \int f(x)dx \\
+= \int f(x)dx$
+
+其中第二步由 $E[Y] = E[f(x)] = \displaystyle \int f(x)p(x)dx$ 得出
+
+现在计算方差来衡量蒙特卡洛积分估计值 $F_N(X)$ 与被积分的积分真值之间的偏移
+
+设标准差为 $\sigma$ ，由样本 $X_1, X_2, X_3, ... , X_N$ 互相独立且服从同一分布，可得
+$\sigma^2[F_N(X)] \\
+= \displaystyle \sigma^2[\frac {1}{N} \sum_{i = 1}^{N} \frac {f(X_i)}{p(X_i)}] \\
+= \frac {1}{N^2} \sum_{i = 1}^{N} \int \Big( \frac {f(x)}{p(x)} - E(F_N(X)) \Big)^2 \cdot p(x)dx \\
+= \frac {1}{N} \Bigg[\int \Big( \frac {f(x)}{p(x)} \Big)^2 \cdot p(x)dx - E(F_N(X))^2 \Bigg] \\
+= \frac {1}{N} \Bigg[\int \frac {f(x)^2}{p(x)}dx - E(F_N(X))^2 \Bigg]$
+
+从结果可以得出 $\sigma$ 与 $\displaystyle \frac {1}{\sqrt{N}}$ 正相关，所以**样本数量越大标准差越小，蒙特卡洛积分估计越准确**
