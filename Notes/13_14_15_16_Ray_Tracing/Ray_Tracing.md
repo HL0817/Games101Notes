@@ -32,6 +32,18 @@
     + 反射方程
     + 渲染方程
 + Probability Review
+    + 随机变量
+    + 概率
+    + 期望
+    + 连续情况下的 PDF
+    + 随机变量函数
++ Monte Carlo Integration
+    + 为什么要使用蒙特卡洛积分
+    + 定义蒙特卡洛积分
+    + 理解蒙特卡洛方法
+    + 理解蒙特卡洛积分
+    + 证明蒙特卡洛积分估计
++ Path Tracing
 
 ## 为什么要使用光线追踪
 光栅化无法处理全局的一些效果
@@ -978,3 +990,45 @@ $\sigma^2[F_N(X)] \\
 = \frac {1}{N} \Bigg[\int \frac {f(x)^2}{p(x)}dx - E(F_N(X))^2 \Bigg]$
 
 从结果可以得出 $\sigma$ 与 $\displaystyle \frac {1}{\sqrt{N}}$ 正相关，所以**样本数量越大标准差越小，蒙特卡洛积分估计越准确**
+
+## Path Tracing
+
+### 为什么要研究 Path Tracing
+Whitted-style ray tracing:
++ 光线不停的在物体间做镜面反射和折射
++ 在粗糙的表面，光线就会停止弹射
+
+Whitted-style 光线追踪有自身一些局限性，它仍然是一种包含了光透射模型（考虑光的反射、折射等）的经验模型，其中许多光照计算仍然不符合物理学定律
+
+这里列举 Whitted-style 光线追踪的问题：
++ Whitted-style 光线追踪只考虑了镜面反射情况，对于 Glossy 材质的表面，无法正确的计算反射光照
+
+    ![whitted_style_ray_tracing_problem_1](./images/whitted_style_ray_tracing_problem_1.png)
+
+    + 对于左边这种几乎接近完全反射的材质，Whitted-style 光线追踪计算的结果还算比较准确
+    + 对于右边这种 Glossy 材质（有点像粗糙金属，毛玻璃之类的），Whitted-style 光线追踪就无法计算得到相对正确的结果
++ Whitted-style 光线追踪不能处理 diffuse 材质的物体，光线打到 diffuse 材质物体就停止了反射折射
+    下面的场景是 Cornell U 搭建的场景，其中的物体全是 diffuse 材质，光线打在上面就是漫反射
+
+    ![whitted_style_ray_tracing_problem_2](./images/whitted_style_ray_tracing_problem_2.png)
+
+    + 左图是路径追踪只计算直接光照的结果，这个结果和 Whitted-style 光线追踪的结果类似，结果不会包含后续的弹射效果
+        + 最明显的缺陷就是，阴影中的物体完全没有着色，因为既没有直接光照，也没有间接光照
+    + 右图是路径追踪计算全局光照（直接+间接光照）的结果，即使是 diffuse 材质的模型，也能很好的计算光线的弹射影响
+        + 和左图对比，会发现红色墙体对应的物体被印成了红色，这就是直接光打到红色墙体发生了漫反射，会把周围的物体也染成红色（这也是 Whitted-style 光线追踪无法做到的事情），这个现象叫做 color bleeding
+
+### 解渲染方程的难点
+$$\Large L_r(x, \omega_o) = L_e(x, \omega_o) + \int_{\Omega^+} L_i(p, \omega_i) f_r(p, \omega_i, \omega_o) (n \cdot \omega_i) d\omega_i$$
+
+Whitted-style ray tracing 是有错误的，但是渲染方程没有问题
+
+渲染方程是我们从物理学角度推导出来的，我们可以直接使用这个方程计算某个点的光照
+
+但是使用这个方程需要解决两个问题：
++ 半球上的积分，积分求各个方向来的光照和反射往各个方向的光照
++ 光线追踪是一个递归的过程，光线会不停在各个物体上反射
+
+### 蒙特卡洛积分解渲染方程
+从一个着色点开始分析问题
+直接光照情况：
+要求半球的积分
