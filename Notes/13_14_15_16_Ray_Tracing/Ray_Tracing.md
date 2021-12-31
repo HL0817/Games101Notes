@@ -1029,6 +1029,148 @@ Whitted-style ray tracing 是有错误的，但是渲染方程没有问题
 + 光线追踪是一个递归的过程，光线会不停在各个物体上反射
 
 ### 蒙特卡洛积分解渲染方程
-从一个着色点开始分析问题
-直接光照情况：
-要求半球的积分
+首先解决第一个问题，解渲染方程，即解关于 radiance 的积分
+
+因为 radiance 的表达式过于复杂，我们引入蒙特卡洛积分估计法来数值上求 radiance 的积分值
+
+简化一下渲染方程的计算场景，着色点只接受直接光照，如下图
+
+![monte_carlo_sample_calc_direct_illunination_radiance](./images/monte_carlo_sample_calc_direct_illunination_radiance.png)
+
++ $light$ ，面光源
++ $p$ ，着色点
++ $\omega_o$ ，射入眼睛的反射光方向，即我们要求 radiance 的方向
++ $\omega_i$ ，进入着色点的光的方向，均匀的分布在球面上， $\omega_i$ 表示某一个方向
++ ~~渲染方程中所有方向都考虑基于着色点向外，方便统一计算~~
++ $box$ ， 场景中的其他物体
+
+在**忽略自发光**的情况下，渲染方程和反射方程的公式一致：
+$$L_r(x, \omega_o) = \int_{\Omega^+} L_i(p, \omega_i) f_r(p, \omega_i, \omega_o) (n \cdot \omega_i) d\omega_i$$
+
+那么着色点 $p$ 在 $\omega_o$ 方向上反射的光照，由着色点接收到各个方向的光与 BRDF 作用后在半球上积分得到
+
+![monte_carlo_sample_calc_direct_ray](./images/monte_carlo_sample_calc_direct_ray.png)
+
+我们现在只考虑直接光照，那么 $L_i(p, \omega_i)$ 的只有在光源的方向有值，其他方向没有光源时，直接假设它的值为 $0$
+
+蒙特卡洛积分 $\displaystyle \int_a^b f(x) \approx \frac {1}{N} \sum_{k = 1}^{N} \frac {f(X_k)}{p(X_k)} \ X_k \sim p(x)$
+
+已知 $f(x) =  L_i(p, \omega_i) f_r(p, \omega_i, \omega_o) (n \cdot \omega_i)$
+
+那么 $X_k \sim p(x)$ 该怎么得到
+
+假设光照均匀的分布在半球上，对于半球面的均匀分布来说 $p(\omega_i) = \displaystyle \frac {1}{2\pi}$
+
+将 $f(x)$ 和 $p(\omega_i)$ 带入蒙特卡洛积分
+
+$$\begin{equation*} \begin{split} L_o(p, \omega_o)
+&= \displaystyle \int_{\Omega^+}L_i(p, \omega_i) f_r(p, \omega_i, \omega_o) (n \cdot \omega_i) d\omega_i \\
+&\approx \frac {1}{N} \sum_{k = 1}^{N} \frac {L_i(p, \omega_i) f_r(p, \omega_i, \omega_o) (n \cdot \omega_i)}{p(\omega_i)} \end{split} \end{equation*}$$
+
+### 路径追踪算法
+现在已经有了核心计算公式，现在可以直接写出路径追踪的着色算法
+
+```c++
+shade(p, wo)
+{
+    Randomly choose N directions wi-pdf
+    Lo = 0.0
+    For each wi {
+        Trace a ray r(p, wi)
+        if ray r hit the light
+            Lo += (1 / N) * L_i * f_r * cosine / pdf(wi)
+    }
+    return Lo
+}
+```
+
+可别忘了，上面这个算法只考虑的是直接光照，现在我们来分析一下间接光照，即如果光线几种物体该如何处理
+
+![path_tracing_algorithm_ray_hit_objects](./images/path_tracing_algorithm_ray_hit_objects.png)
+
+从像素点出发，计算 $P$ 点的光照，发现 ray 击中了另一个物体的 $Q$ 点
+
+那么我们直接把 $Q$ 点当做直接光照
+
+只需要知道 $Q$ 点反射到 $P$ 点的 radiance，就可以计算
+
+而计算 $Q$ 点反射到 $P$ 点方向的 radiance ，可以看作我们在 $P$ 点看向 $Q$ 点，计算直接光照在 $Q$ 点反射出来的 radiance
+
+这是一个递归的过程，我们只需要修改刚才的着色算法就可以得到包含间接光照的路径追踪算法
+
+```c++
+shade(p, wo)
+{
+    Randomly choose N directions wi-pdf
+    Lo = 0.0
+    For each wi {
+        Trace a ray r(p, wi)
+        if ray r hit the light
+            Lo += (1 / N) * L_i * f_r * cosine / pdf(wi)
+        else if ray r hit an object at q
+            Lo += (1 / N) * shade(q, -wi) * f_r * cosine / pdf(wi) // 增加对物体反射的间接光的处理
+    }
+    return Lo
+}
+```
+
+但是这个算法仍然不够，因为算法有着非常严重的问题
+
+**问题 1**：在算法中我们发射了 N 根光线去做击中测试，但对于一个着色点来说，它来自其他物体的反射点可能不止一个。
+
+![path_tracing_algorithm_ray_hit_objects_problem1](./images/path_tracing_algorithm_ray_hit_objects_problem1.png)
+
+如图所示，一个着色点接收到其他物体反射过来的光线可能有不止 1 根（这很好理解，物体的表面是连续的，很像一个面光源），假设有 100 根光线，那么一次反射多 100 根光线，第二次反射就多了 1,000,000 根光线。由于递归的缘故，每次往反射次数增加的方向递归一次，计算量就指数增长一次，计算量一下子就爆炸了。
+
+我们估算一下最后的光线的数量 $rays = N^{bounces}$ ，指数关系非常容易数量爆炸
+
+什么情况下指数关系不会发生数量级的增长？取 $N = 1$ 的时候
+
+蒙特卡洛积分并没有规定 $N$ 的取值范围，只是说明了 $N$ 越大，积分值越精确
+
+所以我们取 $N = 1$ 在算法上完全没有问题，只是这个时候得到的结果噪声非常大而言
+
+稍微修改路径追踪算法
+
+```c++
+shade(p, wo)
+{
+    Randomly choose ONE directions wi-pdf
+    Trace a ray r(p, wi)
+    if ray r hit the light
+        return L_i * f_r * cosine / pdf(wi)
+    else if ray r hit an object at q
+        return shade(q, -wi) * f_r * cosine / pdf(wi)
+}
+```
+
+现在给出定义：
++ 取 $N = 1$ 的光线追踪计算就是路径追踪
++ 取 $N \not = 1$的光线追踪计算就是分布式光线追踪（Distributed Ray Tracing）
+
+路径追踪只有一根光线，最终得到的结果非常不准确
+
+但这没关系，我们可以给每个像素发射不同角度的光线计算 radiance ，最后再将结果求平均
+
+![path_tracing_algorithm_ray_generation](./images/path_tracing_algorithm_ray_generation.png)
+
+这里有点类似蒙特卡洛积分中的大数定理，将多个值求平均来降低误差范围，从而降低噪声（也就是用随机采样来代替指数级的真实光线求交，这还是蒙特卡洛方法的思想）
+
+现在给出最终的 Ray Generation 的伪代码
+
+```c++
+ray_generation(camPos, pixel)
+{
+    Uniformly choose N sample positions whihin the pixel
+    pixel_radiance = 0.0
+
+    For each sample in the pixel
+        Shoot a ray r(camPos, cam_to_sample)
+        If ray r hit the scene at P
+            pixel_radiance += (1 / N) * shade(p, sample_to_cam)
+    
+    return pixel_radiance
+}
+```
+
+**问题 2**：前面的递归算法会永远递归下去，因为他没有递归返回条件
