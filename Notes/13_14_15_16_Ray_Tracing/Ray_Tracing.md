@@ -1114,9 +1114,11 @@ shade(p, wo)
 }
 ```
 
+### 路径追踪的问题
 但是这个算法仍然不够，因为算法有着非常严重的问题
 
-**问题 1**：在算法中我们发射了 N 根光线去做击中测试，但对于一个着色点来说，它来自其他物体的反射点可能不止一个。
+#### 问题 1
+在算法中我们发射了 N 根光线去做击中测试，但对于一个着色点来说，它来自其他物体的反射点可能不止一个。
 
 ![path_tracing_algorithm_ray_hit_objects_problem1](./images/path_tracing_algorithm_ray_hit_objects_problem1.png)
 
@@ -1154,7 +1156,7 @@ shade(p, wo)
 
 ![path_tracing_algorithm_ray_generation](./images/path_tracing_algorithm_ray_generation.png)
 
-这里有点类似蒙特卡洛积分中的大数定理，将多个值求平均来降低误差范围，从而降低噪声（也就是用随机采样来代替指数级的真实光线求交，这还是蒙特卡洛方法的思想）
+这里有点类似蒙特卡洛积分，将多个值求平均来降低误差范围，从而降低噪声（也就是用随机采样来代替指数级的真实光线求交，这还是蒙特卡洛方法的思想）
 
 现在给出最终的 Ray Generation 的伪代码
 
@@ -1173,4 +1175,115 @@ ray_generation(camPos, pixel)
 }
 ```
 
-**问题 2**：前面的递归算法会永远递归下去，因为他没有递归返回条件
+#### 问题 2
+路径追踪是递归的算法，我们并没有给它设置递归返回条件，那么它会永远递归下去，但是对于递归返回条件，我们又不能人为的去做设置
+
+假如我们对光线弹射次数进行限制：
++ 光线弹射 3 次
+
+    ![path_tracing_algorithm_ray_has_3_bounces](./images/path_tracing_algorithm_ray_has_3_bounces.png)
+
++ 光线弹射 17 次
+
+    ![path_tracing_algorithm_ray_has_17_bounces](./images/path_tracing_algorithm_ray_has_17_bounces.png)
+
+可以看到，路径追踪得到的结果，弹射次数越多，场景就越明亮
+
+从能量守恒的角度来分析，现实生活中光线是无限制的不停弹射下去的，如果我们人为的以某个次数截断光线的弹射，那么场景中就会损失该次数以后光线弹射所携带的能量，路径追踪得到的结果能量是不守恒的
+
+因此，**截断光线等于截断能量，导致路径追踪的结果不符合能量守恒定律**
+
+在不截断光线弹射的前提下，该如何解决递归返回的问题？
+
+这里介绍一种叫做 “俄罗斯轮盘赌（Russian Roulette / RR）” 的解决方法。
+
+![russian_roulette_game](./images/russian_roulette_game.png)
+
+俄罗斯轮盘赌是一种基于概率的游戏，在载弹量为 $N$ 的左轮枪里放入 $n$ 颗子弹，然后拨动轮盘后给枪上膛，按照规则向自己或者对方开枪发射子弹，那么存活的概率 $0 < p = \displaystyle \frac{n}{N} < 1$ ，死亡的概率 $1 - p$
+
+我们经常在影视剧或者电影中看见这样的情节，但是它如何跟路径追踪联系起来，并解决光线无限递归弹射的问题呢
+
+还是以着色点为例，在着色点发射一根光线，得到的着色结果是 $L_O$
+
+假设我们人为的设置了一个概率 $P$
+
+以概率 $P$ 往着色点打一根光线，将得到的结果除以概率 $P$ ，得到 $\displaystyle \frac{L_O}{P}$
+
+还有 $1 - P$ 的概率不发射光线，得到的结果是 $0$
+
+相当于，我们将发射或者不发射光线作为离散型随机变量，给他们各自一个概率
+
+这样我们可以算这个着色点的着色结果的期望 $E = P * (L_O / P) + (1 - P) * 0 = L_O$
+
+这样，我们得到的着色结果的期望仍然是 $L_O$ ，是没有能量损失的
+
+用 RR 修改路径追踪算法：
+```c++
+shade(p, wo)
+{
+    Manually specify a probability P_RR
+    Randomly select ksi in a uniform dist. in [0, 1]
+    if (ksi > P_RR)
+        return 0.0;
+    
+    Randomly choose ONE directions wi-pdf
+    Trace a ray r(p, wi)
+    if ray r hit the light
+        return L_i * f_r * cosine / pdf(wi) / P_RR
+    else if ray r hit an object at q
+        return shade(q, -wi) * f_r * cosine / pdf(wi) / P_RR
+}
+```
+
+这样我们就可以让路径追踪能够正确的终止在某个弹射次数下
+
+### 路径追踪的优化
+在解决了上述的问题之后，我们已经得到了正确的路径追踪结果，但还不够，看一下当前路径追踪的结果
++ Low SPP(samples per pixel) ，每个像素采样次数少，即每个像素发射的光线少
+
+    ![low_spp_path_tracing_result](./images/low_spp_path_tracing_result.png)
+
++ High SPP ，每个像素采样次数多，即每个像素发射的光线多
+
+    ![high_spp_path_tracing_result](./images/high_spp_path_tracing_result.png)
+
+又是一个经典的效率和效果的取舍问题
+
+次数少绘制时间就少，对应的结果就充满噪声；次数多绘制时间就多，对应的结果就非常好
+
+分析一下原因，我们在生成光线做路径追踪时，多次随机方向发射光线，取结果的平均值。有两个因素会影响最后着色的结果，光源的大小和发射光线的数量
+
+![two_factors_of_path_tracing_result](./images/two_factors_of_path_tracing_result.png)
+
+光源的大小和发射光线的数量，很大程度影响我们发射的光线击中光源的数量。非常好理解，光源越大，随机光线越容易击中光源；光线越多，随机光线也越容易击中光源
+
+其余没有击中光源的光线都被浪费掉了，它在做了多次光线弹射计算后没有击中光源，这样的计算场景浪费掉了大量的计算资源
+
+有没有什么方法可以避免这样的浪费，答案是有的
+
+蒙特卡洛方法没有限制我们采样使用的概率密度函数，那么直接对光源采样一定不会造成前面所提到的浪费
+
+对面积为 $A$ 的光源进行均匀采样，可以得到光源的 $pdf = \displaystyle \frac {1}{A}$
+
+但是渲染方程的积分对象是着色点的立体角 $L_O = \int L_i \ \ fr \ \ cos \ \ d\omega$
+
+蒙特卡洛积分估计法的原则是：在 $x$ 上采样就要在 $x$ 上积分，采样域和积分域必须相同
+
+现在需要将渲染方程转换到光源上去
+
+![monte_carlo_sampling_the_light](./images/monte_carlo_sampling_the_light.png)
+
+将渲染方程转换到光源上，实际是将渲染方程的积分域替换到光源的表面上，也就是将 $d\omega$ 转换到 $dA$ ，即求 $d\omega$ 到 $dA$ 的转换关系
+
+非常简单的方法，将光源上的单位面积 $dA$ 投影到着色点的单位球的表面（可以从单位立体角的定义得到），就得到了着色点的单位立体角
+$$\Large d\omega = \frac {dA \ \ \cos \theta'}{||x' - x||^2}$$
+其中，$\theta' \not = \theta$
+
+用得到的式子替换渲染方程中的 $d\omega_i$ 得
+$$\begin{equation*} \begin{split} L_o(p, \omega_o)
+&= \displaystyle \int_{\Omega^+}L_i(p, \omega_i) f_r(p, \omega_i, \omega_o) \cos \theta d\omega_i \\
+&= \displaystyle \int_{A}L_i(p, \omega_i) f_r(p, \omega_i, \omega_o) \frac{\cos\theta \cos\theta'}{||x' - x||^2} dA \end{split} \end{equation*}$$
+
+现在就满足蒙特卡洛积分估计的要求，在光源表面采样且在光源表面积分
+
+![path_tracing_typical_scene](./images/path_tracing_typical_scene.png)
