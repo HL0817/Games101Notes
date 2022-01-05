@@ -1,49 +1,55 @@
 # Ray Tracing
 
 ## 目录
-+ 为什么要使用光线追踪
-+ Basic Ray Tracing Algorithm
-    + 光线的说明
-    + Ray Casting
-    + Recursive Ray Tracing
-+ Ray Surface Intersection
-    + 光线的表达式
-    + 光线和球求交
-    + 光线和隐式表示求交
-    + 光线和Mesh求交
-+ Accelerating Ray Surface Intersection
-    + Bounding Volumes
-    + 光线和包围盒求交
-    + 为什么要使用AABB
-    + 光线和AABB求交
-+ Using AABBs to accelerate ray tracing
-    + Uniform Spatial Partitions
-    + Spatial Partitions
-    + Object Partitions
-    + Spatial vs Object Partitions
-+ Basic Radiometry
-    + Radiant Energy and Flux
-    + Radiant Intensity
-    + Irradiance
-    + Radiance
-    + Intensity, Irradiance, Radiance 之间的关系
-+ The Rendering Equation
-    + BRDF
-    + 反射方程
-    + 渲染方程
-+ Probability Review
-    + 随机变量
-    + 概率
-    + 期望
-    + 连续情况下的 PDF
-    + 随机变量函数
-+ Monte Carlo Integration
-    + 为什么要使用蒙特卡洛积分
-    + 定义蒙特卡洛积分
-    + 理解蒙特卡洛方法
-    + 理解蒙特卡洛积分
-    + 证明蒙特卡洛积分估计
-+ Path Tracing
++ [为什么要使用光线追踪](#为什么要使用光线追踪)
++ [Basic Ray Tracing Algorithm](#basic-ray-tracing-algorithm)
+    + [光线的说明](#光线的说明)
+    + [Ray Casting](#ray-casting)
+    + [Recursive Ray Tracing](#recursive-ray-tracing)
++ [Ray Surface Intersection](#ray-surface-intersection)
+    + [光线的表达式](#光线的表达式)
+    + [光线和球求交](#光线和球求交)
+    + [光线和隐式表示求交](#光线和隐式表示求交)
+    + [光线和Mesh求交](#光线和mesh求交)
++ [Accelerating Ray Surface Intersection](#accelerating-ray-surface-intersection)
+    + [Bounding Volumes](#bounding-volumes)
+    + [光线和包围盒求交](#光线和包围盒求交)
+    + [为什么要使用AABB](#为什么要使用aabb)
+    + [光线和AABB求交](#光线和aabb求交)
++ [Using AABBs to accelerate ray tracing](#using-aabbs-to-accelerate-ray-tracing)
+    + [Uniform Spatial Partitions](#uniform-spatial-partitions)
+    + [Spatial Partitions](#spatial-partitions)
+    + [Object Partitions](#object-partitions)
+    + [Spatial vs Object Partitions](#spatial-vs-object-partitions)
++ [Basic Radiometry](#basic-radiometry)
+    + [Radiant Energy and Flux](#radiant-energy-and-flux)
+    + [Radiant Intensity](#radiant-intensity)
+    + [Irradiance](#irradiance)
+    + [Radiance](#radiance)
+    + [Intensity Irradiance Radiance 之间的关系](#intensity-irradiance-radiance-之间的关系)
++ [The Rendering Equation](#the-rendering-equation)
+    + [BRDF](#brdf)
+    + [反射方程](#反射方程)
+    + [渲染方程](#渲染方程)
++ [Probability Review](#probability-review)
+    + [随机变量](#随机变量)
+    + [概率](#概率)
+    + [期望](#期望)
+    + [连续情况下的 PDF](#连续情况下的-pdf)
+    + [随机变量函数](#随机变量函数)
++ [Monte Carlo Integration](#monte-carlo-integration)
+    + [为什么要使用蒙特卡洛积分](#为什么要使用蒙特卡洛积分)
+    + [定义蒙特卡洛积分](#定义蒙特卡洛积分)
+    + [理解蒙特卡洛方法](#理解蒙特卡洛方法)
+    + [理解蒙特卡洛积分](#理解蒙特卡洛积分)
+    + [证明蒙特卡洛积分估计](#证明蒙特卡洛积分估计)
++ [Path Tracing](#path-tracing)
+    + [为什么要研究路径追踪](#为什么要研究-path-tracing)
+    + [解渲染方程](#解渲染方程)
+    + [路径追踪算法](#路径追踪算法)
+    + [路径追踪的问题](#路径追踪的问题)
+    + [路径追踪的优化](#路径追踪的优化)
+    + [路径追踪的结果](#路径追踪的结果)
 
 ## 为什么要使用光线追踪
 光栅化无法处理全局的一些效果
@@ -64,7 +70,7 @@
 ## Basic Ray Tracing Algorithm
 基础的光线追踪算法说明
 
-### Light Rays
+### 光线的说明
 先做一些关于光线的说明：
 + 光沿直线传播
     + 图形学中假设光线沿直线传播
@@ -143,7 +149,7 @@ $$\begin{matrix} \LARGE \mathbf{r}(t) = \mathbf{o} + t\mathbf{d} & 0 \eqslantles
 + $\mathbf{o}$，光线的起点
 + $\mathbf{d}$，光线的方向
 
-### 光线和球的交点
+### 光线和球求交
 我们知道光线的方程式：
 Ray equation：$\begin{matrix}\mathbf{r}(t) = \mathbf{o} + t\mathbf{d},0 \eqslantless t < \infty \end{matrix}$
 
@@ -272,7 +278,7 @@ $$\mathbf{O} + t\mathbf{D} = (1 - b_1 - b_2)\mathbf{P_0} + b_1\mathbf{P_1} + b_2
 
 ![bounding_volumes](./images/bounding_volumes.png)
 
-### Ray Intersection With Box
+### 光线和包围盒求交
 之所以要将这个方法叫做包围盒，是因为我们最常用的用来包裹物体的对象就是长方体，也就是一般意义上的盒子
 
 TODO：Picture（使用视频里的截图内容比较好，截取长方体）
@@ -294,7 +300,7 @@ TODO：Picture（使用视频里的截图内容比较好，分别截取三个平
     
     + 相当于将光源的方向分解到了 $x, y, z$ 三个轴上，不用再去加入 $\mathbf{N}$ 的计算
 
-### Ray Intersection With Axis Aligned Box
+### 光线和AABB求交
 我们还是从 2 维开始，理解光线和 AABB 求交
 
 我们有包围盒外的任意一根光线 $\mathbf{o} + t\mathbf{d}$ 和一个 2D 的包围盒 $x_0, x_1, y_0, y_1$
@@ -654,7 +660,7 @@ Radiance（辐射率），光源发射的单位立体角单位面积的辐射通
 符号表示为
 $$\Large L(p, \omega) = \frac {d^2 \varPhi(p, \omega)}{d\omega dA \cos\theta} [\frac {W}{sr m^2}][\frac {cd}{m^2} = \frac {lm}{sr m^2} = nit]$$
 
-### 辐射强度、辐照度、辐射率之间的关系：
+### Intensity Irradiance Radiance 之间的关系
 #### 定义上的区别
 + 辐射强度：单位立体角的辐射通量
 + 辐照度：单位面积的辐射通量
@@ -685,7 +691,8 @@ dE(p, \omega) &= L_i(p, \omega) \cos \theta d\omega \\
 E(p) &= \int_{H^2} L_i(p, \omega) \cos \theta d\omega
 \end{split}\end{equation*}$$
 
-## BRDF
+## The Rendering Equation
+### BRDF
 Bidirectional Reflectance Distribution Function，双向反射分布函数，简称为 BRDF，描述光是如何进行反射的函数
 
 以光线在某一点的反射为例：
@@ -762,7 +769,7 @@ $$\Large L_r(p, \omega_o) = L_e(p, \omega_o) + \displaystyle\int_{\Omega^+} L_i(
 
 我们将物体反射过来的光线，当做光源发出的光线，这样统一处理就好了
 
-#### 解渲染方程
+#### 渲染方程的展开
 对于渲染方程 $L_r(x, \omega_r) = L_e(x, \omega_r) + \int_{\Omega} L_i(X', -\omega_i) f_r(x, \omega_i, \omega_r) \cos\theta_i d\omega_i$
 
 我们不知道的项仅有 $L_r(X, \omega_r)$ 和 $L_i(X', -\omega_i)$
@@ -828,7 +835,7 @@ $$\Large L = E + KE + K^2E + K^3E + ...$$
 
 ## Probability Review
 
-### Random Variables
+### 随机变量
 随机变量，Random variable，表示取某个值的分布，记作 $X$
 随机变量分布，Probability density function（PDF），表示取某个随机变量的概率，记作 $X \sim p(x)$
 
@@ -841,7 +848,7 @@ $$\Large L = E + KE + K^2E + K^3E + ...$$
 $X$ 可能取的值有 $1, 2, 3, 4, 5, 6$
 那么，他们的分布分别是 $p(1) = p(2) = p(3) = vp(4) = p(5) = p(6)$
 
-### Probabilities
+### 概率
 
 ![probabilities_example](./images/probabilities_example.png)
 
@@ -853,7 +860,7 @@ $n$ 个离散的随机变量 $x_i$ ，对应的概率是 $p_i$
 
 还是以骰子为例，每个面的概率 $p_i = \Large \frac {1}{6}$
 
-### Expected Value
+### 期望
 期望，Expected value，多次重复取随机变量并做平均，得到的值被叫做期望
 
 $X$ 符合 $n$ 个离散的随机变量 $x_i$ ，对应的概率是 $p_i$ 的概率分布
@@ -1017,7 +1024,8 @@ Whitted-style 光线追踪有自身一些局限性，它仍然是一种包含了
     + 右图是路径追踪计算全局光照（直接+间接光照）的结果，即使是 diffuse 材质的模型，也能很好的计算光线的弹射影响
         + 和左图对比，会发现红色墙体对应的物体被印成了红色，这就是直接光打到红色墙体发生了漫反射，会把周围的物体也染成红色（这也是 Whitted-style 光线追踪无法做到的事情），这个现象叫做 color bleeding
 
-### 解渲染方程的难点
+### 解渲染方程
+#### 解渲染方程的难点
 $$\Large L_r(x, \omega_o) = L_e(x, \omega_o) + \int_{\Omega^+} L_i(p, \omega_i) f_r(p, \omega_i, \omega_o) (n \cdot \omega_i) d\omega_i$$
 
 Whitted-style ray tracing 是有错误的，但是渲染方程没有问题
@@ -1028,8 +1036,8 @@ Whitted-style ray tracing 是有错误的，但是渲染方程没有问题
 + 半球上的积分，积分求各个方向来的光照和反射往各个方向的光照
 + 光线追踪是一个递归的过程，光线会不停在各个物体上反射
 
-### 蒙特卡洛积分解渲染方程
-首先解决第一个问题，解渲染方程，即解关于 radiance 的积分
+#### 蒙特卡洛积分解渲染方程
+先解决第一个问题，解渲染方程，即解关于 radiance 的积分
 
 因为 radiance 的表达式过于复杂，我们引入蒙特卡洛积分估计法来数值上求 radiance 的积分值
 
