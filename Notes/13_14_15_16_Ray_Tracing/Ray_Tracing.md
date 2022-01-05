@@ -1224,7 +1224,7 @@ shade(p, wo)
     Manually specify a probability P_RR
     Randomly select ksi in a uniform dist. in [0, 1]
     if (ksi > P_RR)
-        return 0.0;
+        return 0.0
     
     Randomly choose ONE directions wi-pdf
     Trace a ray r(p, wi)
@@ -1255,7 +1255,7 @@ shade(p, wo)
 
 ![two_factors_of_path_tracing_result](./images/two_factors_of_path_tracing_result.png)
 
-光源的大小和发射光线的数量，很大程度影响我们发射的光线击中光源的数量。非常好理解，光源越大，随机光线越容易击中光源；光线越多，随机光线也越容易击中光源
+光源的大小和发射光线的数量，很大程度影响我们发射的光线击中光源的数量。非常好理解，光源越大，随机光线越容易击中光源；光线越多，随机光线也越容易击中光源。和蒙特卡洛积分相同，只有光线数量越多，最后的计算结果越精确，噪声越小
 
 其余没有击中光源的光线都被浪费掉了，它在做了多次光线弹射计算后没有击中光源，这样的计算场景浪费掉了大量的计算资源
 
@@ -1286,4 +1286,55 @@ $$\begin{equation*} \begin{split} L_o(p, \omega_o)
 
 现在就满足蒙特卡洛积分估计的要求，在光源表面采样且在光源表面积分
 
+如下图，在一般的场景中，我们做路径追踪可以将其分为直接光照和间接光照两个部分
+
 ![path_tracing_typical_scene](./images/path_tracing_typical_scene.png)
+
+对直接光照，我们采用转换积分域到光源表面上的方法来代替随机发射光线；而对间接光照，我们仍然采用之前的方法，随机朝非光源方向发射光线，使用 RR 的方式随机的停止光线的弹射
+
+这样我们就提高了发射向光源这个部分的计算结果的精确性，减小了误差
+
+来看一下优化后的伪代码：
+
+```c++
+shade(p, wo)
+{
+    // contribution from the light source
+    Uniformly sample the light at X' (pdf_light = 1 / A)
+    L_dir = L_i * f_r * cos(theta) * cos(theta') / (x' - p)^2 / pdf_light
+
+    //contribution from other reflections
+    L_indir = 0.0
+    Manually specify a probability P_RR
+    Randomly select ksi in a uniform dist. in [0, 1]
+    if (ksi > P_RR)
+        return L_dir
+    
+    Randomly choose ONE directions wi-pdf
+    Trace a ray r(p, wi)
+    if ray r hit an object at q
+        L_indir = shade(q, -wi) * f_r * cosine / pdf(wi) / P_RR
+
+    return L_dir + L_indir
+}
+```
+
+还有一件事情需要额外处理，那就是其他物体遮挡住了光源
+
+![path_tracing_sample_the_light_source_with_occlusion](./images/path_tracing_sample_the_light_source_with_occlusion.png)
+
+我们需要判断光源是否被遮挡，如果遮挡的话，这个光源就不能当做直接光照来进行计算。代码修改也非常简单，加上下面的逻辑就可以了
+
+```c++
+If the ray closeth hit is on light source
+    L_dir = ...
+```
+
+到此为止路径追踪就已经介绍完毕
+
+### 路径追踪的结果
+现在我们来看一下路径追踪的结果，还是以 Cornell Box 为例，左图是照片右图是路径追踪的结果
+
+![path_tracing_algorithm_result](./images/path_tracing_algorithm_result.png)
+
+效果几乎一致，Path Tracing 是照片级的真实向渲染方法
