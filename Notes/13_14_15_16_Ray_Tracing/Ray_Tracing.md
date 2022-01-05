@@ -1,4 +1,5 @@
 # Ray Tracing
+If you can not render Mathematical formula, please read this [Ray_Tracing.pdf](./Ray_Tracing.pdf)
 
 ## 目录
 + [为什么要使用光线追踪](#为什么要使用光线追踪)

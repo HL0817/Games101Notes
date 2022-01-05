@@ -1,4 +1,5 @@
 # Geometry
+If you can not render Mathematical formula, please read this [Geometry.pdf](./Geometry.pdf)
 
 ## 目录
 + [几何的表达方式](#几何的表达方式)
