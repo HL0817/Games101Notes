@@ -66,3 +66,9 @@ $
 $f:\R^2 \rarr \R^3 \Rightarrow (u, v) \rarr (x, y, z)$
 
 $\eqslantless \eqslantgtr$
+
+$$\begin{equation*} \begin{split}
+a 
+&=b+c\\
+&=e+f
+\end{split} \end{equation*}$$

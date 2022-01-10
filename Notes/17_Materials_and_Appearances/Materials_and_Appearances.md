@@ -103,4 +103,81 @@ Specular Refraction ，光线从一种介质进入另一种介质时会发生折
 
 *题外话：右上角中的现象被叫做焦散（caustics），是由光线在凹凸不平的海面折射聚焦形成的，被翻译成焦散优点奇怪*
 
-介绍 Snell's Law（斯内尔定律），用来描述折射和角度的关系
+Snell's Law（斯内尔定律），用来描述折射和角度的关系，即入射角的正弦和入射介质折射率的乘积等于折射角的正弦和折射介质折射率
++ 向量表示
+    + $\eta_i \sin\theta_i = \eta_t \sin\theta_t$ ，$\eta$ 表示介质的折射率
+
+    ![specular_refraction_equation_with_vector](./images/specular_refraction_equation_with_vector.png)
+    
+    + 写出折射角的余弦 $\cos\theta_t = \sqrt{1 - \sin^2\theta_t} = \sqrt{1 - (\frac {\eta_i}{\eta_t})^2 \sin^2\theta_i} = \sqrt{1 - (\frac {\eta_i}{\eta_t})^2 (1 - \cos^2\theta_i)}$
++ 投影表示，方位角表示向量
+    + 将入射向量和折射向量投影到局部坐标系上，即从顶往下看
+
+    ![project_refraction_vectors_to_local_coordinate](./images/project_refraction_vectors_to_local_coordinate.png)
+
+    + $\varphi_t = \varphi_i \pm \pi$
+
+列出常见的折射率
+
+![refraction_medium_eta](./images/refraction_medium_eta.png)
+
+前面列出了向量表示的折射角的余弦 $\cos\theta_t = \sqrt{1 - (\frac {\eta_i}{\eta_t})^2 (1 - \cos^2\theta_i)}$
+
+折射角余弦如果是实数，就需要保证 $1 - (\frac {\eta_i}{\eta_t})^2 (1 - \cos^2\theta_i) > 0$
+
+我们来理解它小于 0 的情况
+
+$1 - (\frac {\eta_i}{\eta_t})^2 (1 - \cos^2\theta_i) < 0 \Rightarrow \frac {\eta_i}{\eta_t} > 1$
+
+小于 0 求不出折射角的余弦，表示 $\frac {\eta_i}{\eta_t} > 1$ 时无法发生折射，那么此时只会发生反射现象，这就是前面说到的全反射现象
+
+Snell's Law 还和一个现象联系在一起，如下图
+
+![snell_window_example](./images/snell_window_example.png)
+
+从高折射率的介质中看向低折射率的介质，只能看到一个锥形区域，这个现象被称为 Snell's Window/Circle（斯内尔窗）
+
+原理很简单，画出它的示意图就能明白
+
+![snell_window](./images/snell_window.png)
+
+因为折射角度受限于折射率
+
+#### 菲涅耳项
+光线被反射到不同角度的能量是不相同的，如下图
+
+![reflectance_with_different_gazing_angle](./images/reflectance_with_different_gazing_angle.png)
+
+一本垂直桌面的书，我们从不同的角度去观察，会看到不同的桌面反射，也就是从桌面反射到人眼的光线的能量，因角度的不同而有所变化
+
+因此，通过 Fresnel Term（菲涅耳项）来解释光线与法线的夹角变化引起的反射能量的变换
+
+菲涅耳项描述了不同角度下，光线的折射和反射的能量占比
+
+![fresnel_term_example](./images/fresnel_term_example.png)
+
+红色的线条，表示了不同角度的光线所反射的能量值，符合我们在刚才例子中的观察，接近平行（和法线夹角越大，表示观察角度越接近平行）的观察物体可看到很强烈的反射，接近垂直的观察物体几乎看不到反射
+
+蓝色和绿色的线条，表示了光在 $S, P$ 方向的极化（震动）现象，红色线条基本上就是两个极化方向的平均值（我们只用到红色的线条）
+
+生活中最常见的例子，应该是看玻璃。以公交车为例，看向自己边上的玻璃窗，能很清晰的看到车外的场景，大部分光都折射出去了，几乎不发生反射；而当我们看向前面几排的车窗，能看到反射出的车内前几排的场景，大部分光都发生了反射，几乎不发生折射
+
+不同材质的物体拥有不同的菲涅耳项的分布，下图表示金属的菲涅耳项
+
+![fresnel_term_with_metals](./images/fresnel_term_with_metals.png)
+
+可以看到，不管什么角度观察，金属材质的反射的能量总是占比很高，这也是金属为什么总有高光的原因
+
+菲涅耳项的计算公式这里直接给出来，即 $S, P$ 极化方向的平均
+$\displaystyle R_S = \Big| \frac {n_1 \cos\theta_i - n_2 \cos\theta_t}{n_1 \cos\theta_i + n_2 \cos\theta_t} \Big|^2 = \Bigg| \frac {n_1 \cos\theta_i - n_2 \sqrt{1 - (\frac{\eta_1}{\eta_2} \sin\theta_i)^2}}{n_1 \cos\theta_i + n_2 \sqrt{1 - (\frac{\eta_1}{\eta_2} \sin\theta_i)^2}} \Bigg|^2$
+
+$\displaystyle R_P = \Big| \frac {n_1 \cos\theta_t - n_2 \cos\theta_i}{n_1 \cos\theta_t + n_2 \cos\theta_i} \Big|^2 = \Bigg| \frac {n_1 \sqrt{1 - (\frac{\eta_1}{\eta_2} \sin\theta_i)^2} - n_2 \cos\theta_i}{n_1 \sqrt{1 - (\frac{\eta_1}{\eta_2} \sin\theta_i)^2} + n_2 \cos\theta_i} \Bigg|^2$
+
+$\Large R_{eff} = \displaystyle \frac{1}{2}(R_S + R_P)$
+
+这个公式非常复杂，使用 Schlick's approximation 做近似替代，从而降低运算量
+
+$R(\theta) = R_0 + (1 - R_0)(1 - \cos\theta)^5$
+$R_0 = \displaystyle \Big(\frac{n_1 - n_2}{n_1 + n_2}\Big)^2$
+
+以 $R_0$ 为起始基准，随着观察方向和法线的夹角增加， $R(\theta)$ 逐渐增加到 1，而 $(1 - \cos\theta)$ 的幂 $n$ 表示了增加过程的陡峭程度
