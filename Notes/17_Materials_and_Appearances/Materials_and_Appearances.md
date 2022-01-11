@@ -17,7 +17,7 @@ BRDF 项，即材质，表示了着色点在渲染方程中，接收来自各个
 
 接下来，了解一下几种比较典型的材质
 
-### 漫反射材质
+## 漫反射材质
 Diffuse / Lambertian Material ，漫反射材质，在物体表面，光线会被均匀的反射到各个方向上
 
 ![shading_point_with_diffuse_material](./images/shading_point_with_diffuse_material.png)
@@ -50,7 +50,7 @@ $\displaystyle \int_{H^2} \cos\theta_i d\omega_i$ 对半球上 $\cos \theta$ 的
 
 最终漫反射表达式 $f_r = \displaystyle \frac {\rho}{\pi}$ ，表示不同种类的漫反射材质，$\rho$ 表示不同反射率的漫反射程度或者颜色
 
-### Glossy 材质
+## Glossy 材质
 不是很好描述的的一种材质，可以理解成抛光的金属（古代的铜镜），有不完全的镜面反射，即它的反射是朝着某个方向发散开的
 
 ![shading_point_with_glossy_material](./images/shading_point_with_glossy_material.png)
@@ -59,7 +59,7 @@ $\displaystyle \int_{H^2} \cos\theta_i d\omega_i$ 对半球上 $\cos \theta$ 的
 
 ![render_results_with_glossy_material](./images/render_results_with_glossy_material.png)
 
-### Ideal reflective and refractive 材质
+## Ideal reflective and refractive 材质
 反射/折射材质，在物体表面，光线会被镜面反射或者发生折射
 
 ![shading_point_with_reflective_or_refractive_material](./images/shading_point_with_reflective_or_refractive_material.png)
@@ -70,7 +70,7 @@ $\displaystyle \int_{H^2} \cos\theta_i d\omega_i$ 对半球上 $\cos \theta$ 的
 
 光线可以在物体表面发生反射或者折射，我们分别来分析一下这两种现象
 
-#### 反射
+### 反射
 Perfect Specular Reflection ，光线会在镜面发生反射，且出射角和入射角完全相同
 
 ![specular_reflection_example](./images/specular_reflection_example.png)
@@ -96,7 +96,7 @@ Perfect Specular Reflection ，光线会在镜面发生反射，且出射角和�
 
 ![render_results_with_perfect_specular_reflection_material](./images/render_results_with_perfect_specular_reflection_material.png)
 
-#### 折射
+### 折射
 Specular Refraction ，光线从一种介质进入另一种介质时会发生折射（光的色散）
 
 ![specular_refraction_example](./images/specular_refraction_example.png)
@@ -143,7 +143,7 @@ Snell's Law 还和一个现象联系在一起，如下图
 
 因为折射角度受限于折射率
 
-#### 菲涅耳项
+### 菲涅耳项
 光线被反射到不同角度的能量是不相同的，如下图
 
 ![reflectance_with_different_gazing_angle](./images/reflectance_with_different_gazing_angle.png)
@@ -180,4 +180,94 @@ $\Large R_{eff} = \displaystyle \frac{1}{2}(R_S + R_P)$
 $R(\theta) = R_0 + (1 - R_0)(1 - \cos\theta)^5$
 $R_0 = \displaystyle \Big(\frac{n_1 - n_2}{n_1 + n_2}\Big)^2$
 
-以 $R_0$ 为起始基准，随着观察方向和法线的夹角增加， $R(\theta)$ 逐渐增加到 1，而 $(1 - \cos\theta)$ 的幂 $n$ 表示了增加过程的陡峭程度
+以 $R_0$ 为起始基准，随着观察方向和法线的夹角增加， $R(\theta)$ 逐渐从 $R_0$ 增加到 1，而 $(1 - \cos\theta)$ 的幂 $n$ 表示了增加过程的陡峭程度
+
+## 微表面材质
+![microfacet_material_example](./images/microfacet_material_example.png)
+
+这是一张在太空拍摄的太阳照射地球的图片。图中有一个非常有意思的现象 —— 高光。产生高光的区域恰好是澳大利亚，太阳光直射澳大利亚，光线被镜面反射到了拍照的位置。但这会让人感到疑惑，尽管澳大利亚内陆是大片的沙漠，但它的表面实际应该是凹凸不平的，为什么会有光滑表面才会产生的镜面反射高光呢？
+
+这个现象的原因，就是本章将要介绍的内容 —— 微表面材质（Microfacet Material）
+
+### 微表面理论
+
+![microfacet_theory](./images/microfacet_theory.png)
+
+微表面理论做了一个假设，假设对于粗糙的物体
++ 从宏观（远处）来看，物体平整但粗糙
++ 从微观（近处）来看，物体凹凸不平但光滑
+
+核心假设就是，物体细分得到的微表面（微元）是不均匀的分布在物体表面的镜面，从远处看到的物体是由所有微元平均得到的效果。
+
+即从远处看，看到的是材质（外观）；从近处看，看到的是几何（镜面的法线）
+
+### 微表面 BRDF
+
+
+用这个理论来分析一下前面提到的典型材质
++ glossy 材质
+
+    ![microfacet_brdf_glossy](./images/microfacet_brdf_glossy.png)
+
+    + glossy 材质的微表面不均匀的分布在物体表面，但是不均匀程度较低
+    + 微表面的法线分布有大致的朝向，并没有不规则的向四面八方分布
+    + 由微表面的法线分布可以推出，宏观上 glossy 材质物体的 BRDF 项集中的分布趋近于法线分布的方向上
++ diffuse 材质
+
+    ![microfacet_brdf_diffuse](./images/microfacet_brdf_diffuse.png)
+
+    + 漫反射材质的微表面分布极其不规则，不均匀程度很高
+    + 微表面的法线分布没有大致的朝向，不规则的向四面八方分布
+    + 由微表面的发现分布可以推出，宏观上漫反射物体的 BRDF 项均匀的分布在四面八方
++ 镜面材质
+    + 微表面理想化的分布一致
+    + 微表面的法线方向都一样
+
+得到微表面理论的核心要点：**微表面的法线分布的趋势，表示了物体宏观的 BRDF 项的在方向上的分布**
+
+![microfacet_brdf_key_point](./images/microfacet_brdf_key_point.png)
+
+使用微表面的法线分布表示 BRDF 的公式
+
+$$\Large f\mathbf{(i, o)} = \displaystyle \frac {\mathbf{F(i, h)G(i, o, h)D(h)}}{4 \mathbf{(n, 1)(n, o)}}$$
+
+其中
+
+$\mathbf{F(i, h)}$ 表示菲涅耳项， 我们要保证最终的结果符合物理学的实际情况
+
+$\mathbf{G(i, o, h)}$ 表示几何项，表示微表面的几何的相互遮挡关系，跟 SSAO 中的 AO 是一个意思，几乎平行的角度（Grazing angle）发射光线，最容易发生微表面几何遮挡
+
+$\mathbf{D(h)}$ 表示微表面的法线分布，使用入射方向和反射方向的夹角的半程向量 $\mathbf{h}$ 去查询发现分布，得到这个微表面是否会有光线反射
+
+### 微表面材质渲染效果
+~~【TODO：使用视频的截图】~~
+
+## 各向异性和各向同性材质
+
+![inside_an_elevator](./images/inside_an_elevator.png)
+
+这是一张在电梯内部的图片，电梯顶上的小灯被电梯各个面反射形成的高光不再是圆形，而是呈现条形
+
+这种条形的反射高光，是由各向异性的材质反射形成的（现实中，电梯壁是朝着同一个方向打磨过的，呈现出打磨方向有一条条凹凸的沟壑）
+
+没错，材质也有各向同性和各向异性
+
+我们可以将材质分为各向同性材质和各向异性材质
++ Isotropic，各向同性
+    
+    ![isotropic_material](./images/isotropic_material.png)
+
+    + 材质微表面没有方向性
+    + 法线分布在各个方向分布均匀
++ Anisotropic，各向异性
+
+    ![anisotropic_material](./images/anisotropic_material.png)
+
+    + 材质微表面具有方向性
+    + 法线分布集中再有一个方向上
+
+各向异性材质的 BRDF 有普通的 BRDF 有一个重要的区别， $f_r(\theta_i, \phi_i;\theta_r, \phi_r) \not = f_r(\theta_i, \phi_i;\theta_r, -\phi_r)$ ，即各向异性材质的 BRDF 在方位角 $\phi$ 变化后会发生变化
+
+给出几个常见的例子
+
+![anisotropic_material_example](./images/anisotropic_material_example.png)
