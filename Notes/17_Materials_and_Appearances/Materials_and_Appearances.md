@@ -271,3 +271,71 @@ $\mathbf{D(h)}$ 表示微表面的法线分布，使用入射方向和反射方�
 给出几个常见的例子
 
 ![anisotropic_material_example](./images/anisotropic_material_example.png)
+
+## BRDF 的性质
+前面已经简单分析了几种典型的材质，现在正式总结 BRDF 的性质
+
++ Non-negativity，非负性
+    + $f_r(\omega_i \rightarrow \omega_r) \ge 0$
++ Linearity，线性
+
+    ![properties_brdf_linearity](./images/properties_brdf_linearity.png)
+
+    + $L_r(p, \omega_r) = \displaystyle \int_{H^2}f_r(p, \omega_i \rightarrow \omega_r)L_i(p, \omega_i) \cos\theta_i d\omega_i$
++ Reciprocity principle，可逆性
+
+    ![properties_brdf_reciprocity_principle](./images/properties_brdf_reciprocity_principle.png)
+
+    + $f_r(\omega_i \rightarrow \omega_r) = f_r(\omega_r \rightarrow \omega_i)$
+    + 调换入射光线和出射光线，得到的结果完全一样
++ Energy conservation，能量守恒
+    + $\displaystyle \forall \omega_r \int_{H^2} f_r(\omega_i \rightarrow \omega_r) \cos \theta_i d\omega_i \le 1$
+
+关于可逆性，结合各向异性和各向同性材质来扩展一下
+
+对于各向同性的材质来说，只要相对方位角不变，那么它的 BRDF 也不会变 $f_r(\theta_i, \phi_i; \theta_r, \phi_r) = f_r(\theta_i, \theta_r, \phi_r - \phi_i)$
+
+带入可逆性的公式里得到 $f_r(\theta_i, \theta_r, \phi_i - \phi_r) = f_r(\theta_i, \theta_r, \phi_r - \phi_i) = f_r(\theta_i, \theta_r, |\phi_i - \phi_r|)$
+
+## BRDF 的测量
+为什么需要测量 BRDF
++ 避免构建模型分析各个不同的材质
++ 避免搭建基于各种材质的分析模型
++ 测量的结果包含了自然光所有的散射（scattering）现象
++ 测量的结果比分析计算得到的结果更加准确
++ 准确的结果对于建模和设计更有帮助，能做出更好的效果
+
+以某材质的菲涅耳项的理论模型和测量结果的对比为例
+
+![measuring_fresnel_term_compare_theory](./images/measuring_fresnel_term_compare_theory.png)
+
++ 蓝色线条是理论模拟的菲涅耳项
++ 红色和绿色线条表示了测量的该材质在两个方向极化的结果
++ 看见理论和实际测量之间还是有很大的误差
++ 并且使用测量值，也可以避免在实际过程中菲涅耳项复杂计算的性能消耗
+
+如何测量？对于一个测试样本来说，我们固定摄像机的位置从固定角度观察测试样本，然后在四面八方用灯光对它进行照射，每个不同照射方向都用摄像机采集数据，就得到了这个固定观察角度下这个材质的 BRDF 结果。然后再从不同角度重复这个过程，直到获得所有角度下材质的 BRDF 数据结果。
+
+这个方法被称为基于图像的 BRDF 测量方法，示意图如下：
+
+![image_based_brdf_measurement](./images/image_based_brdf_measurement.png)
+
+对应的测量器 gonioreflectometer ，这个机器在 UCSD ，作为兴趣点了解一下
+
+![gonioreflectometer](./images/gonioreflectometer.png)
+
+写出这个过程的伪代码
+```c++
+for each outgoing direction wo
+    move light to illuminate surface with a thin beam from wo
+    for each incoming direction wi
+        move sensor to be at direction wi from surface
+        measure incident radiance
+```
+
+这是一个 4 维的过程：`each outgoing direction X each direction of light X each direction of sensor X each incoming direction`
+
+稍微优化一些：
++ 各向同性材质可以减少一个维度，从 4 维降到 3 维
++ BRDF 的可逆性，可以减少一半的测量方向
++ 通过一些计算优化和构建模型，测一部分数据猜一部分数据（当前比较热门的学术研究方向）
