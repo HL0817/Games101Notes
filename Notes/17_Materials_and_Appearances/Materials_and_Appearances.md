@@ -1,10 +1,26 @@
 # Materials and Appearances
+If you can not render Mathematical formula, please read this [Materials_and_Appearances.pdf](./Materials_and_Appearances.pdf)
+
 The Appearance of Natural Materials
 外观是材质和光线共同作用的结果，研究材质就研究光线如何和材质相互作用
 
 ![the_appearance_of_natural_materials](./images/the_appearance_of_natural_materials.png)
 
 ## 目录
++ [图形学中的材质](#图形学中的材质)
++ [漫反射材质](#漫反射材质)
++ [Glossy 材质](#glossy-材质)
++ [Ideal reflective and refractive 材质](#ideal-reflective-and-refractive-材质)
+    + [反射](#反射)
+    + [折射](#折射)
+    + [菲涅耳项](#菲涅耳项)
++ [微表面材质](#微表面材质)
+    + [微表面理论](#微表面理论)
+    + [微表面 BRDF](#微表面-brdf)
+    + [微表面材质渲染效果](#微表面材质渲染效果)
++ [各向异性和各向同性材质](#各向异性和各向同性材质)
++ [BRDF 的性质](#brdf-的性质)
++ [BRDF 的测量](#brdf-的测量)
 
 ## 图形学中的材质
 ![material_in_computer_graphics](./images/material_in_computer_graphics.png)
