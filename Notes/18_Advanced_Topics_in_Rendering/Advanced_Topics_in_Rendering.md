@@ -65,4 +65,76 @@ MLT 和 BDPT 对比如下
 
 MLT 的适用场景：**复杂的难以找到的光线路径**，MLT找到一条光线路径就可以通过这一条推导出更多的光线路径
 
+MLT 的缺陷：
++ 难以推算出 MLT 的收敛速度，即不能确定具体要渲染多长时间才能得到比较理想的结果
++ 每个像素发出的光线，其收敛速度不同
+    + 原因很简单，就是有些像素没有光线路径，不能推导其他光线路径，那么这个像素就会迅速收敛；而由光线路径的像素就会慢慢的推导出更多的光线路径
++ 收敛速度不同且无法预知收敛时间，共同导致 MLT 停止时，有些地方收敛了有些地方没有收敛，就会造成结果看上去很脏，有很多亮斑（未收敛，或者周围未收敛）
++ MLT 也无法渲染动画，因为前后两帧的收敛区域和收敛程度我们都没有办法保证，这会使动画看上去不连续
+
+![cons_of_metropolis_light_transport](./images/cons_of_metropolis_light_transport.png)
+
+### Photon Mapping
+Photon mapping ，光子映射，是一种有偏的光线传播方法。它非常适合用于处理光线的 SDS （Specular-Diffuse-Specular ，光线发生镜面反射打到 diffuse 材质，再发生镜面反射的路径，简称为 SDS）路径传播和生成焦散（caustics）
++ generating caustics
+
+    ![photon_mapping_generating_caustics_example](./images/photon_mapping_generating_caustics_example.png)
+
++ handling SDS paths
+
+    ![photon_mapping_handling_sds_paths_example](./images/photon_mapping_handling_sds_paths_example.png)
+
+光子映射是一个“两步法（two-stage method）”，它拥有完全分开的两个步骤，我们介绍其中一种方法：
++ Stage 1：photon tracing
+    + 从光源出发，向场景中发射光子
+    + 光子正常做路径追踪，在场景中不同弹射
+    + 光子不停弹射，直到打在了 diffuse 材质的表面，然后停止弹射
+    + 记录每个光子的位置
+    ![photon_mapping_stage_one](./images/photon_mapping_stage_one.png)
+
++ Stage 2：photon collection / final gathering
+    + 正常的从相机出发，逐像素的往场景中发射光线
+    + 光线进行路径追踪，并在场景中弹射
+    + 光线不停弹射，直到打在了 diffuse 材质的表面，然后停止弹射
++ Calculation：局部密度估计
+    + 对 Stage 2 中光线打到的地方做局部密度估计 —— 对于局部而言，光子越多表示这个地方越亮
+    + 放到渲染过程
+        + 每个着色点，找到离它最近的 $N$ 个光子
+        + 计算这个 $N$ 个光子所占的物体表面的面积 $A$
+        + 计算该着色点的光子密度，即 $N / A$
+
+        ![photon_mapping_calculation_example](./images/photon_mapping_calculation_example.png)
+
+得到下面的结果
+![photon_mapping_results](./images/photon_mapping_results.png)
+
+分析结果：
++ 当 $N$ 很小的时候，光子映射生成的结果有很多的噪点
+    这个是显而易见的，光子密度来说，光子数量越多，得到的光子密度越准确
++ 当 $N$ 很大的时候，光子映射生成的结果很模糊
+    为什么光子数量增大，映射的结果却很模糊呢，因为光子映射是有偏光线传播方法，不能得到正确的结果
+
+为什么光子映射是有偏光线传播？
++ 前面使用的局部密度估计是一个结果不正确的估计 $dN/dA \not= \varDelta N \varDelta A$ ，正确结果应该是 $dN / dA$ （$dA$ 无限小才是正确结果）
++ 如果正确的得到结果
+    + 发射更多的光子，在有限面积范围内，光子数量越多，得到的结果越准确。因为这个时候，找到的含有 $N$ 个光子的面积 $\varDelta A$ 更小
+    + 即有这样的关系：$光子的发射总数量 \uparrow \Rightarrow 包含 N 个光子的总面积 \varDelta A \downarrow \Rightarrow |\varDelta A - dA| \downarrow$
++ 光子映射的结果是不准确的（做不到发射无限多个光子），但是它的结果理论上可以收敛于某个常数，因此光子映射是一种有偏但一致的估计
+
+通过 Photon Mapping 理解一下渲染中的 bias 是什么意思
++ Biased 表示模糊
++ Consistent 表示样本趋于无限时，结果不再模糊
+
+### Vertex Connection and Merging
+Vertex Connection and Merging ，简称为 VCM ，是 BDPT 和 Photon mapping 的结合体，也是一种有偏的光线传播方法
+
+核心思路：
++ BDPT 过程中生成的 sub-paths 存在很多没有相连的情况
++ 可以使用 photon mapping 的思路，将连接点看做光子，去尝试连接那些非常相近的光子结束点
+    核心过程如下图中极小范围内的红色和绿色结束点
+
+![vertex_connection_and_merging_key_idea](./images/vertex_connection_and_merging_key_idea.png)
+
+### Instant Radiosity
+Instant Radiosity ，实时辐射度算法（简称 IR），也被称为 many-light approaches
 ## Advanced Appearance Modeling
