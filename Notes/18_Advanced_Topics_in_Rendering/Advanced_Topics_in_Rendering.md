@@ -5,7 +5,6 @@
 ## 目录
 
 ## Advanced Light Transport
-### 无偏和有偏蒙特卡洛积分估计
 光线传播的算法（或者说计算方法）大致可以分为两种
 + 无偏光线传播方法
     + Bidirectional path tracing（BDPT）
@@ -13,7 +12,7 @@
 + 有偏光线传播方法
     + Photon mapping
     + Vertex connection and merging（VCM）
-
+### 无偏和有偏蒙特卡洛积分估计
 在介绍这些方法之前，先了解一下什么是无偏，什么是有偏
 
 无偏和有偏只的是无偏蒙特卡洛积分估计和有偏蒙特卡洛积分估计
@@ -136,5 +135,85 @@ Vertex Connection and Merging ，简称为 VCM ，是 BDPT 和 Photon mapping �
 ![vertex_connection_and_merging_key_idea](./images/vertex_connection_and_merging_key_idea.png)
 
 ### Instant Radiosity
-Instant Radiosity ，实时辐射度算法（简称 IR），也被称为 many-light approaches
+Instant Radiosity ，实时辐射度算法（简称 IR），也被称为 many-light approaches ，核心思路就是把被照亮的表面也当做光源（对于着色点来说，从物体表面反射来的光和光源直接照射的光其实没有区别，都是 radiance）
+
+基本步骤如下：
++ 处理光源，生成 VPLs
+    + 从光源出发，发射 sub-paths 
+    + sub-paths 经过弹射停留在光源路径的结束点
+    + 把这些结束点当做虚拟光源（Virtual Point Light ，记作 VPL）
++ 使用 VPLs 对场景进行直接光渲染
+
+![instant_radiosity_stage_display](./images/instant_radiosity_stage_display.png)
+
+IR 的优点是计算非常快，且对漫反射材质的渲染效果非常好
+
+但 IR 也有明显的缺点
++ 如果 VPLs 和着色点很接近，他们之间的距离非常小，会导致这个着色点出现高亮
+    至于原因，和对光源表面采样的公式（对光源方向的渲染方程优化，详情参考[路径追踪的优化](./../13_14_15_16_Ray_Tracing/Ray_Tracing.md)）有关，这个公式的分母是着色点和光源距离的平方，如果两者差值极小，会导致结果非常大
+    ![cons_of_instant_radiosity](./images/cons_of_instant_radiosity.png)
+
++ 无法处理 glossy 材质的物体
+
 ## Advanced Appearance Modeling
+Advanced Appearance Modeling ，高级外观建模，指为不同质感的物体建立起对应的材质模型，用于着色计算
+
+这里将材质建模大致分为一下几类：
++ 非表面模型（Non-surface models）
+    + 散射介质
+    + BCSDF ， hair / fur / fiber
+    + 颗粒材质（Granular material），例如沙子堆成的小城堡
++ 表面模型（Surface models）
+    + 半透明材质（Translucent material / BSSRDF）
+    + 布料
+    + 复杂模型材质（non-statistical BRDF）
++ 程序化生成外观材质
+
+### Participating Media
+Participating Media ，参与介质（散射介质），只有体积的会在体积内发生散射的介质，常见的雾和云就是散射介质
+
+![participating_media_fog_example](./images/participating_media_fog_example.png)
+
+![participating_media_cloud_example](./images/participating_media_cloud_example.png)
+
+当传过散射介质时，光线可能会被吸收或者被散射，对于这个介质的某个着色点来说，有以下几种情况：
++ 吸收（Absorption），光线在这个点就发生衰减，能量被介质吸收
++ 自发光（Emission），这个着色点本身就是个光源
++ 向外发生散射（Out-scattering），介质中的小冰晶小水滴会将光线发散到周围各个方向
++ 接收其他着色点的散射光线（In-scattering）
+
+![light_travels_through_participating_medium_example](./images/light_travels_through_participating_medium_example.png)
+
+描述光线如何散射的方法和描述光线如何反射类似。我们使用 BRDF 函数去描述光线在各个方向上反射的 Radiance 的分布，同理，使用使用相位函数来描述光线在散射介质内的点 $x$ 发生散射时，往各个方向散射的 Radiance 的分布，用 $g$ 来表示，典型的散射偏向如下图：
+
+![phase_function_describe_distributioin_of_radiance](./images/phase_function_describe_distributioin_of_radiance.png)
+
+散射介质的渲染过程也和 BRDF 类似：
++ 随机选择方向进行光线的弹射（发射散射）
++ 选定方向后，随机选择该次弹射前进的方向
++ 重复上述步骤，得到光线路径
++ 对于着色点而言，将该着色点的路径和光源连接
++ 计算光源对这些路径的贡献
+
+![participating_media_rendering](./images/participating_media_rendering.png)
+
+尽管过程和 BRDF 类似，但散射介质的渲染不能再使用渲染方程，渲染方程只针对表面渲染。而且散射介质的渲染过程，并不符合物理学的能量守恒（有没有守恒的建模计算方法？）
+
+渲染效果还是比较不错的
+
+![participating_media_rendering_result_1](./images/participating_media_rendering_result_1.png)
+
+此外，还有一些其他的东西也可以被散射介质模型给渲染出来，例如巧克力浆
+
+![participating_media_rendering_result_2](./images/participating_media_rendering_result_2.png)
+
+### Hair Appearance
+头发也不算是表面材质，和光线作用的时候，发丝是一根根的与光线发生作用。头发是被看做一条曲线和光线发生作用，不是表面材质的一个面和光线发生作用
+
+人的头发与光线作用，有比较明显的特点：
++ 散碎的高光
++ 有不同的两种高光
+    + 无色的偏白的高光
+    + 有色的高光
+
+![hair_appearance_exampla](./images/hair_appearance_exampla.png)
