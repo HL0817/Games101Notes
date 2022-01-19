@@ -217,3 +217,97 @@ Participating Media ，参与介质（散射介质），只有体积的会在体
     + 有色的高光
 
 ![hair_appearance_exampla](./images/hair_appearance_exampla.png)
+
+#### Kajiya-Kay Model
+最开始，Kajiya 和 Kay 提出了 Kajiya-Kay Model 来描述光线与发丝的相互作用
++ 发丝被看做一根表面光滑的细长圆柱体
++ 光线照射发丝，会朝一个圆锥方向镜面反射，被记作 $S$
++ 光线照射发丝，也会朝着四面八方漫反射，被记作 $D$
++ 如何理解 $S$ 和 $D$ ，将光线看做在着色点朝圆锥方向发射镜面反射，并朝着各个方向发生漫反射，最终的着色结果由两个部分叠加起来
+
+![kajiya_kay_model_display](./images/kajiya_kay_model_display.png)
+
+按照 Kajiya-Kay Model 渲染出来的效果如下
+
+![kajiya_kay_model_rendering_result](./images/kajiya_kay_model_rendering_result.png)
+
+Kajiya-Kay Model 的效果看上去就比较一般
+
+#### Marschner Model
+在 Kajiya-Kay Model 的基础上，Marschner 给发丝增加了对折射的考虑，光线可以穿过发丝，发生折射
++ 发丝仍然被看做一根细长的圆柱体
++ 光线照射发丝发生反射，产生朝圆锥方向的镜面反射，被记作 $S$
++ 光线照射发丝发生折射，光线会折射进入圆柱体内部
+    + 光线在圆柱体另一个内表面发生反射,之后在入射表面再发生一次反向的朝圆锥方向的折射，先折射再反射再折射，被记作 $TRT$
+    + 光线在圆柱体另一个内表面发生折射，直接朝着另一面折射出了圆柱体，先后发生两次折射，被记作 $TT$
+
+![marschner_model_display](./images/marschner_model_display.png)
+
+展开说明一下局部细节
++ 发丝局部被看做是玻璃材质的圆柱体
+    + 圆柱体分为外表皮（cuticle）和皮质层（cortex ，这里不应该是皮质层，而应该是内表面）
+    + 皮质层会有色素，对光线进行吸收，可以用来解释头发的颜色和光线的能量衰减
+
+    ![glass_like_cylinder](./images/glass_like_cylinder.png)
+
++ $R, TT, TRT$ 的示意图
+    + $R$ 表示反射
+    + $TT$ 表示折射进入，在另一个边折射出去
+    + $TRT$ 表示折射进入，在另一边反射返回，在同一边折射出去
+
+    ![marschner_model_r_tt_trt_display](./images/marschner_model_r_tt_trt_display.png)
+
+Marschner Model 渲染的效果就非常不错
+
+![marschner_model_rendering_results](./images/marschner_model_rendering_results.png)
+
+### Fur Appearance
+Marschner Model 在头发渲染上有非常不错的表现，但是将它运用到动物毛发渲染上，结果就不很理想了
+
+![compare_rendering_animal_fur_with_human_hair](./images/compare_rendering_animal_fur_with_human_hair.png)
+
+从生物学上重新分析一下头发、毛发的结构，发现他们有共同的结构
++ Cuticle 表皮
++ Cortex 皮质，发丝内部充斥的物质，可以吸收光线
++ Medulla 髓质，是一种非常复杂的结果，可以散射光线
+
+![hair_fur_fiber_common_structrue](./images/hair_fur_fiber_common_structrue.png)
+
+人的头发和动物的皮毛表现不一致的主要原因是，两者毛发结构里髓质的占比不一样，人的头发髓质占比较少，动物毛发髓质占比非常大
+
+![difference_between_hair_and_fur](./images/difference_between_hair_and_fur.png)
+
+现在根据生物学上毛发的结构，重新对 Marschner Model 进行了完善，添加上了髓质对光线的影响，由闫令琪博士提出的 Double Cylinder Model
+
+![double_cylinder_model_display](./images/double_cylinder_model_display.png)
+
+Double Cylinder Model 加入了对光线穿过髓质的考虑
++ 毛发被看做一根细长的圆柱体，其内部还有包裹了另一根更细长的圆柱体
++ 对于不穿过髓质的光线来说， $R, TT, TRT$ 仍然是存在的
+    【TODO：需要补充不穿过髓质的示意图】
++ 对于穿过髓质的光线来说，光线和髓质发生散射形成了新的光线
+    + 穿过髓质的光线在毛发另一边折射出去，即先折射进入毛发再穿过髓质最后折射出去，被记作 $TT^s$
+    + 穿过髓质的光线在毛发另一边发射回来，从反方向折射出去，即先折射进入毛发再穿过髓质后发生反射最后折射出，被记作 $TRT^s$
+
+    ![double_cylinder_model_tts_trts_display](./images/double_cylinder_model_tts_trts_display.png)
+
+Double Cylinder Model 渲染的结果由 $R, TT, TRT, TT^s, TRT^s$ 所组成，如下图所示
+
+![double_cylinder_model_rendering_display](./images/double_cylinder_model_rendering_display.png)
+
+Double Cylinder Model 对于动物毛发的渲染结果，非常不错
+
+![double_cylinder_model_rendering_result](./images/double_cylinder_model_rendering_result.png)
+
+### Granular Material
+Granular Material ，颗粒材质，描述那些晶体或者颗粒组合在一起之后形成的外观材质，例如沙丘、香料堆、一包豆子等等
+
+![granular_material_example](./images/granular_material_example.png)
+
+如果严格的对每个颗粒做渲染，得到的最终结果肯定是正确的，但是这个模型数量和计算量是非常巨大的，需要对颗粒模型进行简化。可以把颗粒组成的模型划分为基本单元，给每个颗粒在基本单元里设计一个比例，对应每个基本单元进行渲染。
+
+![granular_material_procedural_definition](./images/granular_material_procedural_definition.png)
+
+以这种分割的方式，来渲染一个沙粒堆成的城堡，看上去效果还不错
+
+![granular_material_rendering_result](./images/granular_material_rendering_result.png)
