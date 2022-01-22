@@ -1,24 +1,25 @@
 # Advanced Topics in Rendering
+If you can not render Mathematical formula, please read this [Advanced_Topics_in_Rendering.pdf](./Advanced_Topics_in_Rendering.pdf)
 
 介绍一些学术上比较前沿的高级渲染课题
 
 ## 目录
 + [Advanced Light Transport](#advanced-light-transport)
-+ [](#)
-+ [](#)
-+ [](#)
-+ [](#)
-+ [](#)
-+ [](#)
-+ [](#)
-+ [](#)
-+ [](#)
-+ [](#)
-+ [](#)
-+ [](#)
-+ [](#)
-+ [](#)
-+ [](#)
+    + [无偏和有偏蒙特卡洛积分估计](#无偏和有偏蒙特卡洛积分估计)
+    + [Bidirectional Path Tracing](#bidirectional-path-tracing)
+    + [Metropolis Light Transport](#metropolis-light-transport)
+    + [Photon Mapping](#photon-mapping)
+    + [Vertex Connection and Merging](#vertex-connection-and-merging)
+    + [Instant Radiosity](#instant-radiosity)
++ [Advanced Appearance Modeling](#advanced-appearance-modeling)
+    + [Participating Media](#participating-media)
+    + [Hair Appearance](#hair-appearance)
+    + [Fur Appearance](#fur-appearance)
+    + [Granular Material](#granular-material)
+    + [Translucent Material](#translucent-material)
+    + [Cloth](#cloth)
+    + [Detailed Material](#detailed-material)
++ [Procedural Appearance](#procedural-appearance)
 ## Advanced Light Transport
 光线传播的算法（或者说计算方法）大致可以分为两种
 + 无偏光线传播方法
@@ -35,8 +36,8 @@
 + 有偏蒙特卡洛方法（biased Monte Carlo technique）指所有不属于无偏估计的估计方法，也就是说一定有误差或期望不等于正确值
     + 特殊情况：随着样本数量增多，有偏估计的期望越来越接近真实值，直到样本数量无穷多，期望会收敛到真实值，这种有偏估计被称为一致（consistent）的估计
 
-### Bidirectional Path Tracing (BDPT)
-Bidirectional Path Tracing ，双向路径追踪，用一条光路将相机和光源连接起来
+### Bidirectional Path Tracing
+Bidirectional Path Tracing ，双向路径追踪，简称 BDPT ，用一条光路将相机和光源连接起来
 
 ![Bidirectional_path_tracing](./images/Bidirectional_path_tracing.png)
 
@@ -64,8 +65,8 @@ Bidirectional Path Tracing ，双向路径追踪，用一条光路将相机和�
 + 非常难以实现
 + 双向路径追踪比单向路径追踪慢，甚至慢很多
 
-### Metropolis Light Transport (MLT)
-Metropolis Light Transport ，Metropolis 光线传播（Metropolis 是人名，不是大都市），使用马尔可夫链蒙特卡洛方法（Markov Chain Monte Carlo / MCMC）来做光线路径推导
+### Metropolis Light Transport
+Metropolis Light Transport ，Metropolis 光线传播（Metropolis 是人名，不是大都市），简称 MLT ，使用马尔可夫链蒙特卡洛方法（Markov Chain Monte Carlo / MCMC）来做光线路径推导
 
 对于蒙特卡洛积分估计来说，如果使用的 PDF 越接近积分函数，在相同样本数量的情况下，积分估计的结果就越准确。而马尔可夫链可以为给定的函数生成对应 PDF 的随机样本。两者的结合就被称为马尔可夫链蒙特卡洛积分估计
 
