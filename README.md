@@ -15,6 +15,9 @@
     + [Antialiasing and Visibility](./Notes/6_Antialiasing_and_Visibility/Antialiasing_and_Visibility.md)
     + [Shading](./Notes/7_8_9_Shading/Shading.md)
     + [Geometry](./Notes/10_11_12_Geometry/Geometry.md)
+    + [Ray Tracing](./Notes/13_14_15_16_Ray_Tracing/Ray_Tracing.md)
+    + [Materials and Appearances](./Notes/17_Materials_and_Appearances/Materials_and_Appearances.md)
+    + [Advanced Topics in Rendering](./Notes/18_Advanced_Topics_in_Rendering/Advanced_Topics_in_Rendering.md)
 ****
 他人[笔记](https://blog.csdn.net/qq_38065509)，作参考
 
