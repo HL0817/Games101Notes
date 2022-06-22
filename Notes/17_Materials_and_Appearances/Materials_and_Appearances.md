@@ -185,11 +185,11 @@ Snell's Law 还和一个现象联系在一起，如下图
 可以看到，不管什么角度观察，金属材质的反射的能量总是占比很高，这也是金属为什么总有高光的原因
 
 菲涅耳项的计算公式这里直接给出来，即 $S, P$ 极化方向的平均
-$\displaystyle R_S = \Big| \frac {n_1 \cos\theta_i - n_2 \cos\theta_t}{n_1 \cos\theta_i + n_2 \cos\theta_t} \Big|^2 = \Bigg| \frac {n_1 \cos\theta_i - n_2 \sqrt{1 - (\frac{\eta_1}{\eta_2} \sin\theta_i)^2}}{n_1 \cos\theta_i + n_2 \sqrt{1 - (\frac{\eta_1}{\eta_2} \sin\theta_i)^2}} \Bigg|^2$
+$\displaystyle R_S = \Big| \frac {n_1 \cos\theta_i - n_2 \cos\theta_t}{n_1 \cos\theta_i + n_2 \cos\theta_t} \Big|^2 = \Bigg| \frac {n_1 \cos\theta_i - n_2 \sqrt{1 - (\frac{n_1}{n_2} \sin\theta_i)^2}}{n_1 \cos\theta_i + n_2 \sqrt{1 - (\frac{n_1}{n_2} \sin\theta_i)^2}} \Bigg|^2$
 
-$\displaystyle R_P = \Big| \frac {n_1 \cos\theta_t - n_2 \cos\theta_i}{n_1 \cos\theta_t + n_2 \cos\theta_i} \Big|^2 = \Bigg| \frac {n_1 \sqrt{1 - (\frac{\eta_1}{\eta_2} \sin\theta_i)^2} - n_2 \cos\theta_i}{n_1 \sqrt{1 - (\frac{\eta_1}{\eta_2} \sin\theta_i)^2} + n_2 \cos\theta_i} \Bigg|^2$
+$\displaystyle R_P = \Big| \frac {n_1 \cos\theta_t - n_2 \cos\theta_i}{n_1 \cos\theta_t + n_2 \cos\theta_i} \Big|^2 = \Bigg| \frac {n_1 \sqrt{1 - (\frac{n_1}{n_2} \sin\theta_i)^2} - n_2 \cos\theta_i}{n_1 \sqrt{1 - (\frac{n_1}{n_2} \sin\theta_i)^2} + n_2 \cos\theta_i} \Bigg|^2$
 
-$\Large R_{eff} = \displaystyle \frac{1}{2}(R_S + R_P)$
+$\Large R_{eff} = \displaystyle \frac{1}{2}(R_S + R_P)$s
 
 这个公式非常复杂，使用 Schlick's approximation 做近似替代，从而降低运算量
 
