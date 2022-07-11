@@ -1,5 +1,5 @@
 # Games101Notes
-最近在看闫令琪的Games101课程，记录一下学习笔记和作业的代码
+闫令琪的Games101课程，记录一下学习笔记和作业的代码
 
 + 课程[主页](https://sites.cs.ucsb.edu/~lingqi/teaching/games101.html)
     + [视频链接（BIlibili）](https://www.bilibili.com/video/BV1X7411F744?from=search&seid=15862813116742549159)
