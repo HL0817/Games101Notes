@@ -18,60 +18,13 @@
     + [Ray Tracing](./Notes/13_14_15_16_Ray_Tracing/Ray_Tracing.md)
     + [Materials and Appearances](./Notes/17_Materials_and_Appearances/Materials_and_Appearances.md)
     + [Advanced Topics in Rendering](./Notes/18_Advanced_Topics_in_Rendering/Advanced_Topics_in_Rendering.md)
-****
-他人[笔记](https://blog.csdn.net/qq_38065509)，作参考
+    + Cameras, Lenses and Light Fields
+        + 主讲现实的相机、光场等，跟图形学联系相对没有那么紧密
+    + Color and Perception
+        + 主讲颜色和感知相关的细节，包括颜色空间等
+    + Animation
+        + 主讲粒子、物理、动画等，包括质点弹簧系统
 
-以下为临时草稿文件：
-+ [MD基本要素](https://shd101wyy.github.io/markdown-preview-enhanced/#/zh-cn/markdown-basics)
-+ 常用数学公式记录
-箭头表示向量：$\overrightarrow{a}$
-绝对值：$\lVert a \rVert$
-式子整体放大+粗体A+行列式：
->$\LARGE{
-    { \mathbf{A} }
-    = { \begin{pmatrix} x \\ y \end{pmatrix} }
-}$
-
-行列式：
->${ \begin{pmatrix} x \\ y \end{pmatrix} }$
-
-式子整体放大+粗体A与A的转置+行列式：
->$\LARGE{
-    { \mathbf{A}^\mathrm{T} }
-    = { \begin{pmatrix} x , y \end{pmatrix} }
-}$
-
-粗体A与A的转置：
->$
-    { \mathbf{A} } + { \mathbf{A}^\mathrm{T} }
-$
-
-求根${ \sqrt{x^2 + y^2} }$
-点乘：$\LARGE{ { \overrightarrow{a} \cdot \overrightarrow{b} } }$
-投影：$\overrightarrow{b}_\perp$
-
-叉乘：
->$\LARGE{
-    { \lVert a \times b \rVert }
-    = { \lVert a \rVert }{ \lVert b \rVert }\sin\theta
-}$
-
-矩阵乘法：
->$\LARGE{
-    \overrightarrow{a} \times \overrightarrow{b}
-    = \mathbf{A}\overrightarrow{b}
-    = \begin{pmatrix} 0 & -z_a & y_a \\ z_a & 0 & -x_a \\ -y_a & x_a & 0 \end{pmatrix} \begin{pmatrix} x_b \\ y_b \\ z_b \end{pmatrix}
-}$
-
-不等于：
-> $M \not = P$
-
-$f:\R^2 \rarr \R^3 \Rightarrow (u, v) \rarr (x, y, z)$
-
-$\eqslantless \eqslantgtr$
-
-$$\begin{equation*} \begin{split}
-a 
-&=b+c\\
-&=e+f
-\end{split} \end{equation*}$$
++ 结语
+笔记基本内容已经完成，最后几讲与图形学联系相对没有那么紧密，决定不做详细笔记。
+历时两三个月，将课程笔记做完，囫囵吞枣的结束了所有内容，并没有做具体实践（没有多余时间完成课程作业的实践内容，非常遗憾）。懂了很多图形学知识，又有很多知识不太明了，希望能长久的学习下去，将心中的疑惑慢慢减少，能在图形学领域更往前去探索。
