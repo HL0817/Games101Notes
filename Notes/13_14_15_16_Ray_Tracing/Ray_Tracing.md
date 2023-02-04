@@ -1286,9 +1286,7 @@ shade(p, wo)
 
 非常简单的方法，将光源上的单位面积 $dA$ 投影到着色点的单位球的表面（可以从单位立体角的定义得到），就得到了着色点的单位立体角
 $$\Large d\omega = \frac {dA \ \ \cos \theta'}{||x' - x||^2}$$
-其中，$\theta' \not = \theta$
-
-用得到的式子替换渲染方程中的 $d\omega_i$ 得
+其中，$\theta' \not = \theta$ ，用得到的式子替换渲染方程中的 $d\omega_i$ 得
 $$\begin{equation*} \begin{split} L_o(p, \omega_o)
 &= \displaystyle \int_{\Omega^+}L_i(p, \omega_i) f_r(p, \omega_i, \omega_o) \cos \theta d\omega_i \\
 &= \displaystyle \int_{A}L_i(p, \omega_i) f_r(p, \omega_i, \omega_o) \frac{\cos\theta \cos\theta'}{||x' - x||^2} dA \end{split} \end{equation*}$$
